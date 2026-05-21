@@ -1,101 +1,100 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const SYSTEM_PROMPT = `Jsi interní AI asistent pro operátorky call centra energetické společnosti Electree.
+const SYSTEM_PROMPT = `Jsi interní AI asistent pro operátorky call centra Tramaco Energy.
 Pomáháš jim během živého hovoru se zákazníkem – rychle, stručně, prakticky.
-Odpovídej vždy v češtině.
+Odpovídej vždy v češtině. Buď konkrétní, uváděj přesné ceny.
 
-PRODUKTY A CENÍK (aktuální):
+PRODUKTY A CENÍK (platné od 22. 4. 2026):
 
-=== ELEKTŘINA – DODÁVKA ===
-• Electree SPOT – cena elektrické energie kopíruje burzové hodinové ceny (OTE).
-  Distribuce: fix podle pásma (NN do 3x63A). Vhodné pro flexibilní zákazníky s chytrou zásuvkou.
-• Electree FIX 12 – fixní cena komodity na 12 měsíců: 3,20 Kč/kWh (NN).
-  Jistota ceny, bez překvapení. Doporučeno pro domácnosti.
-• Electree FIX 24 – fixní cena na 24 měsíců: 3,45 Kč/kWh (NN).
-  Dlouhodobá jistota, mírně vyšší cena za ochranu před výkyvy.
-• Electree ZELENÁ – 100 % elektřina z OZE (certifikát RECS). Příplatek +0,15 Kč/kWh oproti FIX 12.
-  Ideální pro zákazníky citlivé na ekologii.
+=== ELEKTŘINA – DODÁVKA (ceny s DPH) ===
+• HOME FIX 12 – 3 084,29 Kč/MWh (2 549,00 bez DPH), paušál 156,09 Kč/měs.
+• HOME FIX 24 – 2 842,29 Kč/MWh (2 349,00 bez DPH), paušál 180,29 Kč/měs. ⭐ DOPORUČENO
+• HOME FIX 36 – 2 781,79 Kč/MWh (2 299,00 bez DPH), paušál 180,29 Kč/měs.
+• EXPERT FIX 12 – 3 205,29 Kč/MWh, paušál 156,09 Kč/měs.
+• EXPERT FIX 24 – 2 963,29 Kč/MWh, paušál 180,29 Kč/měs.
+• EXPERT FIX 36 – 2 902,79 Kč/MWh, paušál 180,29 Kč/měs.
+• SPOT – hodinová burzová cena OTE. Vyžaduje smart metr AMM. Vhodné jen pro flexibilní spotřebu.
 
-=== PLYN – DODÁVKA ===
-• Electree PLYN FIX 12 – fixní cena plynu na 12 měsíců: 1,85 Kč/kWh. Měsíční poplatek 89 Kč.
-• Electree PLYN FIX 24 – fixní cena plynu na 24 měsíců: 1,95 Kč/kWh. Měsíční poplatek 89 Kč.
-• Electree PLYN SPOT – cena podle denního spotu EEX. Pro zkušené zákazníky.
+=== PLYN – DODÁVKA (ceny s DPH) ===
+• HOME FIX 12 – 1 632,29 Kč/MWh, paušál 108,89 Kč/měs.
+• HOME FIX 24 – 1 571,79 Kč/MWh, paušál 108,89 Kč/měs.
+• HOME FIX 36 – 1 571,79 Kč/MWh, paušál 108,89 Kč/měs.
 
-=== VÝKUP ELEKTRICKÉ ENERGIE (FVE, malé zdroje) ===
-• Výkup SPOT – výkupní cena = hodinový SPOT OTE mínus marže 0,05 Kč/kWh.
-• Výkup FIX – garantovaná výkupní cena na 12 měsíců: aktuálně 2,10 Kč/kWh.
-• Komunitní energie – zákazník může sdílet přebytky se sousedy přes virtuální batch.
-• Podmínky výkupu: licence ERÚ, smlouva o připojení, smart meter (AMM).
+=== VÝKUP FVE (elektřina zpět do sítě) ===
+• Home Solar FIX MINI – 1 000 Kč/MWh, paušál 39 Kč/měs. (do 5 MWh/rok)
+• Home Solar FIX – 500 Kč/MWh, paušál 59 Kč/měs. (do 10 MWh/rok)
+• Home Solar FIX MAXI – 400 Kč/MWh, paušál 99 Kč/měs. (nad 10 MWh/rok)
 
 === ČASTÉ SITUACE ===
-• Zákazník chce jistotu → doporuč FIX 24 (elektřina i plyn).
-• Zákazník je ekologicky uvědomělý → Electree ZELENÁ.
-• Zákazník má FVE a ptá se na výkup → vysvětli rozdíl SPOT vs FIX výkup, zeptej se na výkon FVE.
-• Zákazník si stěžuje na vysoký účet → zkontroluj, zda je na SPOTu v drahém období, nabídni přechod na FIX.
-• Zákazník chce zrušit smlouvu → výpovědní lhůta 30 dní, bez poplatku pokud je na konci vázanosti.
-• Zákazník se opožďuje s platbou → splátkový plán, max 3 splátky, min 500 Kč/splátka.`;
+• Zákazník chce jistotu → HOME FIX 24 (nejlepší poměr cena/jistota).
+• Zákazník má FVE → zeptej se na výkon (kWp) a roční výrobu. Do 5 MWh → FIX MINI, 5-10 MWh → FIX, nad 10 MWh → FIX MAXI.
+• Zákazník si stěžuje na vysoký účet → ověř, zda je na SPOT tarifu. Zimní špičky mohou být 2-3× dražší.
+• Zákazník chce zrušit smlouvu → nejprve zjisti důvod. Do 14 dní od podpisu u nové firmy může od ní odstoupit.
+• SPOT vs FIX → SPOT vyžaduje AMM metr a flexibilní spotřebu. Pro jistotu vždy FIX.
+• Retence → nikdy nesnižuj cenu bez souhlasu vedoucího. Nabídni jinou dobu fixace nebo kombinaci elektřina+plyn.`;
 
 // Mock responses for demo mode (no API key)
 function getMockResponse(message: string): string {
   const m = message.toLowerCase();
 
   if ((m.includes("fix 12") && m.includes("fix 24")) || (m.includes("rozdíl") && m.includes("fix")) || (m.includes("rozdil") && m.includes("fix"))) {
-    return `FIX 12 vs FIX 24 – hlavní rozdíly:
+    return `HOME FIX 12 vs HOME FIX 24 – hlavní rozdíly:
 
-• FIX 12 – 3,20 Kč/kWh, vázanost 12 měsíců. Vhodné pokud zákazník chce flexibilitu a předpokládá pokles cen.
-• FIX 24 – 3,45 Kč/kWh, vázanost 24 měsíců. O 0,25 Kč dražší, ale garantuje jistotu na 2 roky.
+• HOME FIX 12 – 3 084,29 Kč/MWh s DPH, paušál 156,09 Kč/měs. Kratší vázanost.
+• HOME FIX 24 – 2 842,29 Kč/MWh s DPH, paušál 180,29 Kč/měs. Úspora ~242 Kč/MWh oproti FIX 12. ⭐
 
-👉 Doporučení: Pokud zákazník mluví o jistotě a nechce překvapení – nabídni FIX 24. Pokud váhá, zeptej se: "Plánujete se stěhovat nebo měnit dodavatele v příštích 2 letech?"`;
+👉 Pro většinu zákazníků doporučuji HOME FIX 24 – nižší cena za komoditu, jistota na 2 roky.
+Zeptej se: „Plánujete se stěhovat nebo měnit dodavatele v příštích 2 letech?"`;
   }
 
   if (m.includes("fve") || m.includes("fotovolta") || m.includes("výkup") || m.includes("vykup") || m.includes("solar")) {
-    return `Zákazník s FVE – výkup elektrické energie:
+    return `Zákazník s FVE – výkupní produkty Tramaco Energy:
 
-Máme 2 možnosti:
-• Výkup FIX – garantovaná cena 2,10 Kč/kWh na 12 měsíců. Jistota, doporučeno pro většinu.
-• Výkup SPOT – hodinová burzová cena mínus 0,05 Kč/kWh. Může být výhodnější u větších zdrojů.
+• Home Solar FIX MINI – 1 000 Kč/MWh, paušál 39 Kč/měs. (do 5 MWh/rok)
+• Home Solar FIX – 500 Kč/MWh, paušál 59 Kč/měs. (do 10 MWh/rok)
+• Home Solar FIX MAXI – 400 Kč/MWh, paušál 99 Kč/měs. (nad 10 MWh/rok)
 
-⚠️ Před podpisem ověřit:
-1. Má zákazník licenci ERÚ?
-2. Smlouvu o připojení s distributorem?
-3. Nainstalovaný smart meter (AMM)?
+⚠️ Před uzavřením výkupní smlouvy zjistit:
+1. Výkon FVE v kWp a odhadovaná roční výroba v MWh
+2. EAN kód výrobny (z přípojky distributora)
+3. Doklad vlastnictví nemovitosti
 
-👉 Zeptej se na výkon FVE v kWp – pod 10 kWp doporučuji FIX, nad 10 kWp může být SPOT zajímavý.`;
+👉 Zeptej se na výkon a roční výrobu – to určí správný produkt.`;
   }
 
   if (m.includes("jistot") || m.includes("jistý") || m.includes("garantovan") || m.includes("fixn")) {
-    return `Zákazník chce jistotu ceny – ideální kandidát na FIX 24.
+    return `Zákazník chce jistotu ceny – ideální kandidát na HOME FIX 24.
 
-👉 Doporučuji: Electree FIX 24
-• Cena: 3,45 Kč/kWh (NN)
-• Vázanost: 24 měsíců
-• Žádná překvapení z burzových výkyvů
+👉 Doporučuji: HOME FIX 24
+• Cena: 2 842,29 Kč/MWh s DPH (2 349,00 bez DPH)
+• Paušál: 180,29 Kč/měsíc
+• Vázanost: 24 měsíců – pevná cena bez překvapení
 
-Pokud má i plyn: PLYN FIX 24 = 1,95 Kč/kWh + 89 Kč/měsíc paušál.
+Pokud odebírá i plyn: HOME FIX 24 plyn = 1 571,79 Kč/MWh + paušál 108,89 Kč/měsíc.
 
-Formulace pro zákazníka: "Tato tarifa vám zajistí stejnou cenu po celé 2 roky, bez ohledu na to, co se děje na trhu."`;
+Formulace: „Tato cena platí po celé 2 roky – bez ohledu na to, co se děje na burze."`;
   }
 
   if (m.includes("účet") || m.includes("ucet") || m.includes("drahé") || m.includes("drahe") || m.includes("vysoký") || m.includes("vysok")) {
     return `Zákazník si stěžuje na vysoký účet – postup:
 
-1. Zjisti jaký produkt má: pokud je na SPOTu, mohl platit tržní špičky (např. zima 2024 = až 8 Kč/kWh v některých hodinách).
-2. Zkontroluj jeho spotřebu v zákaznické kartě – je vyšší než loni?
-3. Nabídni přechod na FIX 12 (3,20 Kč/kWh) nebo FIX 24 (3,45 Kč/kWh).
+1. Zjisti, zda je na SPOT tarifu – zimní špičky mohou být 2–3× dražší než FIX.
+2. Zkontroluj spotřebu v zákaznické kartě EIS – je vyšší než loni?
+3. Nabídni přechod na HOME FIX 24: 2 842,29 Kč/MWh s DPH – pevná cena na 2 roky.
 
-👉 Formulace: "Rozumím, na SPOTu se cena může lišit hodinu od hodiny. Můžeme vás přesunout na fixní tarifu, kde budete znát přesnou cenu předem. Chcete to zvážit?"`;
+👉 Formulace: „Na SPOTu se cena mění každou hodinu. Na HOME FIX 24 zaplatíte vždy stejně – mohu vás přepsat hned."`;
   }
 
   if (m.includes("zrušit") || m.includes("zrusit") || m.includes("výpověď") || m.includes("vypoved") || m.includes("odejít") || m.includes("odejit")) {
-    return `Zákazník chce zrušit smlouvu:
+    return `Zákazník chce zrušit smlouvu – retenční postup:
 
-• Výpovědní lhůta: 30 dní od doručení výpovědi
-• Poplatek: žádný, pokud je smlouva po skončení vázanosti
-• Pokud je v období vázanosti: upozorni na případný poplatek za předčasné ukončení (ověř ve smlouvě)
+1. Zjisti důvod: cena? špatná zkušenost? konkurenční nabídka?
+2. Připomeň: do 14 dní od podpisu u jiné firmy může od nové smlouvy odstoupit.
+3. Nabídni alternativu: jiná délka fixace, kombinace elektřina+plyn.
 
-👉 Retenční skript: "Dřív než to zprocesujeme, mohu se zeptat co vás k tomu vede? Možná dokážeme najít řešení – například lepší produkt nebo splátkový plán."
+👉 Formulace: „Dřív než to zprocesujeme – co vás k tomu vede? Možná mám pro vás lepší řešení."
 
-Pokud zákazník trvá na zrušení: zapiš důvod do CRM a spusť retenční workflow.`;
+Pokud zákazník trvá: zapiš důvod do EIS a eskaluj na vedoucího týmu.`;
   }
 
   if (m.includes("platb") || m.includes("splátk") || m.includes("platba") || m.includes("dluh") || m.includes("nezaplat")) {
@@ -106,58 +105,51 @@ Splátkový plán:
 • Minimální splátka: 500 Kč
 • První splátka ihned při dohodnutí plánu
 
-👉 Formulace: "Dokážeme vám rozdělit dlužnou částku na 3 splátky. Co by bylo pro vás reálně zvladatelné hned teď?"
+👉 Formulace: „Dokážeme rozdělit částku na 3 splátky. Co by pro vás bylo zvladatelné hned teď?"
 
-⚠️ Upozornění: pokud zákazník má již aktivní upomínky, ověř v systému před nabídkou plánu. Předej případ nadřízené pokud částka přesahuje 5 000 Kč.`;
-  }
-
-  if (m.includes("zelená") || m.includes("zelena") || m.includes("ekolog") || m.includes("oze") || m.includes("obnovitel")) {
-    return `Zákazník se zajímá o ekologii – Electree ZELENÁ:
-
-• 100 % elektřina z obnovitelných zdrojů (certifikát RECS)
-• Cena: 3,35 Kč/kWh (FIX 12 + příplatek 0,15 Kč)
-• Vázanost: 12 měsíců
-
-👉 Klíčový argument: "Každá kWh, kterou spotřebujete, je pokryta certifikátem původu z OZE – větrné, solární nebo vodní elektrárny."
-
-Vhodné pro zákazníky, kteří řeší uhlíkovou stopu, ale nemají vlastní FVE.`;
+⚠️ Při aktivních upomínkách ověřit v EIS. Pokud dluh > 5 000 Kč → předat vedoucímu.`;
   }
 
   if (m.includes("plyn") || m.includes("gas")) {
-    return `Plyn – přehled produktů:
+    return `Plyn – HOME FIX produkty Tramaco Energy (s DPH):
 
-• PLYN FIX 12 – 1,85 Kč/kWh + 89 Kč/měsíc. Doporučeno pro většinu domácností.
-• PLYN FIX 24 – 1,95 Kč/kWh + 89 Kč/měsíc. Dlouhodobá jistota, o 0,10 Kč dražší.
-• PLYN SPOT – denní burzová cena EEX. Pro zkušenější zákazníky, kteří sledují trh.
+• HOME FIX 12 – 1 632,29 Kč/MWh, paušál 108,89 Kč/měs.
+• HOME FIX 24 – 1 571,79 Kč/MWh, paušál 108,89 Kč/měs. ⭐ DOPORUČENO
+• HOME FIX 36 – 1 571,79 Kč/MWh, paušál 108,89 Kč/měs. (stejná cena jako 24)
 
-👉 Tip: Pokud zákazník odebírá i elektřinu, nabídni kombinaci FIX 24 elektřina + FIX 24 plyn = jednoduchá smlouva, jedna platba, jistota na 2 roky.`;
+👉 Tip: Zálohy vždy nastavit na zimní spotřebu! V létě zákazník přeplatí, v zimě nedoplatí.
+Kombinace elektřina HOME FIX 24 + plyn HOME FIX 24 = jeden dodavatel, jednoduchá správa.`;
   }
 
   if (m.includes("spot") || m.includes("burzov") || m.includes("hodinov")) {
-    return `SPOT produkt – elektřina za burzovou cenu:
+    return `SPOT tarif – elektřina za burzovou cenu:
 
 • Cena se mění každou hodinu podle OTE burzy
-• Distribuce zůstává fixní (podle distribučního pásma)
-• Potřeba: smart meter (AMM) pro hodinové měření
+• Vyžaduje smart metr AMM (bez něj nelze aktivovat)
+• Vhodné jen pro zákazníky s flexibilní spotřebou
 
 Kdy je SPOT výhodný:
-✅ Zákazník má flexibilní spotřebu (nabíjí auto v noci, pračka přes den)
-✅ Má domácí FVE nebo baterii
-❌ Nevhodné pro zákazníky, kteří chtějí předvídatelný účet
+✅ Nabíjení auta v noci (levné hodiny)
+✅ Pračka/myčka přes den
+✅ Vlastní FVE nebo baterie
+❌ Pro jistotu a předvídatelný účet → HOME FIX 24
 
-👉 Pokud zákazník váhá: "Na SPOTu můžete ušetřit, ale vyžaduje sledování cen. Chcete se tomu věnovat, nebo raději jistotu FIXu?"`;
+👉 „Na SPOTu můžete ušetřit, ale vyžaduje sledování. Máte AMM metr a flexibilní spotřebu?"`;
   }
 
   // Generic fallback
-  return `Na základě vaší otázky – zde je můj pohled:
+  return `Tramaco Energy – přehled produktů (platné od 22. 4. 2026):
 
-Electree nabízí produkty pro různé typy zákazníků:
-• Chce jistotu → FIX 24 (elektřina 3,45 Kč/kWh, plyn 1,95 Kč/kWh)
-• Chce flexibilitu → SPOT (hodinové burzové ceny)
-• Má FVE → Výkup FIX 2,10 Kč/kWh nebo Výkup SPOT
-• Ekologicky smýšlející → Electree ZELENÁ (3,35 Kč/kWh)
+ELEKTŘINA (s DPH):
+• HOME FIX 12: 3 084,29 Kč/MWh | HOME FIX 24: 2 842,29 Kč/MWh ⭐ | HOME FIX 36: 2 781,79 Kč/MWh
 
-Můžete mi dát více kontextu o situaci zákazníka? Rád poradím konkrétněji.`;
+PLYN (s DPH):
+• HOME FIX 24/36: 1 571,79 Kč/MWh + paušál 108,89 Kč/měs.
+
+FVE VÝKUP:
+• FIX MINI: 1 000 Kč/MWh | FIX: 500 Kč/MWh | FIX MAXI: 400 Kč/MWh
+
+Dejte mi více kontextu o zákazníkovi – rád poradím konkrétně.`;
 }
 
 export async function POST(req: Request) {

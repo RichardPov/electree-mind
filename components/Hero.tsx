@@ -27,6 +27,12 @@ export default function Hero() {
 
           <div className="flex flex-wrap gap-4">
             <a
+              href="/dashboard"
+              className="inline-flex items-center gap-2 bg-[#D7FF00] text-[#0D3D34] font-bold px-6 py-3.5 rounded-xl hover:opacity-90 transition-opacity text-base"
+            >
+              🚀 Otevřít demo dashboard
+            </a>
+            <a
               href="#vrstvy"
               className="inline-flex items-center gap-2 bg-[#0D3D34] text-[#D7FF00] font-semibold px-6 py-3.5 rounded-xl hover:bg-[#1A6B5A] transition-colors text-base"
             >
