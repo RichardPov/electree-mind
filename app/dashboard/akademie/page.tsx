@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useProgress } from "@/hooks/useProgress";
 
 const COURSES = [
   {
@@ -283,9 +284,11 @@ function QuizCard({ quiz }: { quiz: { q: string; a: string[]; correct: number }[
 export default function AkademieePage() {
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
+  const { progress, markLesson, isDone, countDone } = useProgress();
 
   const course = COURSES.find((c) => c.id === selectedCourse);
   const lessonContent = course && selectedLesson ? (course.content as Record<string, { body: string; quiz?: { q: string; a: string[]; correct: number }[] }>)[selectedLesson] : null;
+  const lessonIdx = course && selectedLesson ? course.lessons.findIndex((l) => l.title === selectedLesson) : -1;
 
   if (selectedCourse && course) {
     return (
@@ -303,13 +306,21 @@ export default function AkademieePage() {
                 <div className="text-2xl mb-1">{course.icon}</div>
                 <h2 className="font-bold text-[#0D3D34] text-sm">{course.title}</h2>
                 <div className="mt-2">
-                  <div className="flex justify-between text-[10px] text-[#0D3D34]/40 mb-1">
-                    <span>{course.done}/{course.total} lekcí</span>
-                    <span>{course.progress}%</span>
-                  </div>
-                  <div className="h-1.5 bg-[#EBF7F1] rounded-full overflow-hidden">
-                    <div className="h-full rounded-full bg-[#D7FF00]" style={{ width: `${course.progress}%` }} />
-                  </div>
+                  {(() => {
+                    const done = countDone(course.id);
+                    const pct = Math.round((done / course.total) * 100);
+                    return (
+                      <>
+                        <div className="flex justify-between text-[10px] text-[#0D3D34]/40 mb-1">
+                          <span>{done}/{course.total} lekcí</span>
+                          <span>{pct}%</span>
+                        </div>
+                        <div className="h-1.5 bg-[#EBF7F1] rounded-full overflow-hidden">
+                          <div className="h-full rounded-full bg-[#D7FF00]" style={{ width: `${pct}%` }} />
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
               <div className="divide-y divide-[#D1DFD8]">
@@ -319,11 +330,11 @@ export default function AkademieePage() {
                     onClick={() => setSelectedLesson(selectedLesson === lesson.title ? null : lesson.title)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#F7FAF9] transition-colors ${selectedLesson === lesson.title ? "bg-[#EBF7F1]" : ""}`}
                   >
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] ${lesson.done ? "bg-[#D7FF00] text-[#0D3D34]" : "border-2 border-[#D1DFD8] text-[#0D3D34]/30"}`}>
-                      {lesson.done ? "✓" : i + 1}
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] ${isDone(course.id, i) ? "bg-[#D7FF00] text-[#0D3D34]" : "border-2 border-[#D1DFD8] text-[#0D3D34]/30"}`}>
+                      {isDone(course.id, i) ? "✓" : i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className={`text-xs font-medium truncate ${lesson.done ? "text-[#0D3D34]" : "text-[#0D3D34]/60"}`}>{lesson.title}</div>
+                      <div className={`text-xs font-medium truncate ${isDone(course.id, i) ? "text-[#0D3D34]" : "text-[#0D3D34]/60"}`}>{lesson.title}</div>
                       <div className="text-[10px] text-[#0D3D34]/35">{typeIcon[lesson.type]} {typeBadge[lesson.type]} · {lesson.mins} min</div>
                     </div>
                   </button>
@@ -342,6 +353,23 @@ export default function AkademieePage() {
                 <div className="px-6 py-5">
                   <pre className="text-sm text-[#0D3D34]/80 leading-relaxed whitespace-pre-wrap font-sans">{lessonContent.body}</pre>
                   {lessonContent.quiz && <QuizCard quiz={lessonContent.quiz} />}
+                  {course && lessonIdx >= 0 && (
+                    <div className="mt-5 pt-4 border-t border-[#D1DFD8]">
+                      {isDone(course.id, lessonIdx) ? (
+                        <div className="flex items-center gap-2 text-[#1A6B5A] text-sm font-semibold">
+                          <span className="w-5 h-5 rounded-full bg-[#D7FF00] flex items-center justify-center text-[10px] text-[#0D3D34]">✓</span>
+                          Lekce dokončena · +50 bodů
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => markLesson(course.id, lessonIdx)}
+                          className="bg-[#0D3D34] text-[#D7FF00] px-5 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
+                        >
+                          Označit jako dokončenou · +50 b
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (

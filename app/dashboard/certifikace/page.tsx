@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useProgress } from "@/hooks/useProgress";
 
 type Cert = {
   id: string;
@@ -133,6 +134,7 @@ export default function CertifikacePage() {
   const [selected, setSelected] = useState<Cert | null>(null);
   const [exam, setExam] = useState<ExamState | null>(null);
   const [examDone, setExamDone] = useState(false);
+  const { progress, saveCert } = useProgress();
 
   const startExam = (cert: Cert) => {
     if (!cert.exam || cert.exam.questions.length === 0) return;
@@ -153,6 +155,9 @@ export default function CertifikacePage() {
     if (!exam) return;
     const cert = CERTS.find((c) => c.id === exam.certId)!;
     if (exam.idx + 1 >= cert.exam!.questions.length) {
+      const sc = exam.results.filter(Boolean).length;
+      const tot = cert.exam!.questions.length;
+      saveCert(exam.certId, sc / tot >= 0.67, sc);
       setExamDone(true);
     } else {
       setExam({ ...exam, idx: exam.idx + 1, selected: null });
@@ -162,6 +167,12 @@ export default function CertifikacePage() {
   const score = exam ? exam.results.filter(Boolean).length : 0;
   const total = exam && selected ? selected.exam!.questions.length : 0;
   const passed = total > 0 && score / total >= 0.67;
+
+  const getCertStatus = (cert: Cert): "done" | "active" | "locked" => {
+    const result = progress.certResults[cert.id];
+    if (result?.passed) return "done";
+    return cert.status === "locked" ? "locked" : "active";
+  };
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -186,9 +197,9 @@ export default function CertifikacePage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-bold text-[#0D3D34]">{cert.title}</h3>
-                    {cert.status === "done" && <span className="text-[10px] font-bold bg-[#D7FF00] text-[#0D3D34] px-2 py-0.5 rounded-full">ZÍSKÁNO ✓</span>}
-                    {cert.status === "locked" && <span className="text-[10px] font-bold bg-[#D1DFD8] text-[#0D3D34]/50 px-2 py-0.5 rounded-full">UZAMČENO 🔒</span>}
-                    {cert.status === "active" && <span className="text-[10px] font-bold bg-[#EBF7F1] text-[#1A6B5A] px-2 py-0.5 rounded-full">V PŘÍPRAVĚ</span>}
+                    {getCertStatus(cert) === "done" && <span className="text-[10px] font-bold bg-[#D7FF00] text-[#0D3D34] px-2 py-0.5 rounded-full">ZÍSKÁNO ✓</span>}
+                    {getCertStatus(cert) === "locked" && <span className="text-[10px] font-bold bg-[#D1DFD8] text-[#0D3D34]/50 px-2 py-0.5 rounded-full">UZAMČENO 🔒</span>}
+                    {getCertStatus(cert) === "active" && <span className="text-[10px] font-bold bg-[#EBF7F1] text-[#1A6B5A] px-2 py-0.5 rounded-full">V PŘÍPRAVĚ</span>}
                   </div>
                   <p className="text-xs text-[#0D3D34]/50 mt-1">{cert.desc}</p>
                   <div className="mt-3">
