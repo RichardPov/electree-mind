@@ -1,396 +1,589 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
-// ── PRODUKTY DATA (reálné ceny z PPTX prezentací, platnost od 22.4.2026) ──────
-
-const ELEKTRINA_HOME = [
-  { name: "HOME FIX 12", months: 12, mwh_dph: "3 084,29", mwh_bez: "2 549,00", pausal: "156,09", tag: "" },
-  { name: "HOME FIX 24", months: 24, mwh_dph: "2 842,29", mwh_bez: "2 349,00", pausal: "180,29", tag: "Doporučený" },
-  { name: "HOME FIX 36", months: 36, mwh_dph: "2 781,79", mwh_bez: "2 299,00", pausal: "180,29", tag: "Nejlevnější" },
-];
-
-const ELEKTRINA_EXPERT = [
-  { name: "EXPERT FIX 12", months: 12, mwh_dph: "3 205,29", mwh_bez: "2 649,00", pausal: "156,09", tag: "" },
-  { name: "EXPERT FIX 24", months: 24, mwh_dph: "2 963,29", mwh_bez: "2 449,00", pausal: "180,29", tag: "Nejoblíbenější ⭐" },
-  { name: "EXPERT FIX 36", months: 36, mwh_dph: "2 902,79", mwh_bez: "2 399,00", pausal: "180,29", tag: "Nejlevnější komodita" },
-];
-
-const PLYN_HOME = [
-  { name: "HOME FIX 12", months: 12, mwh_dph: "1 632,29", mwh_bez: "1 349,00", pausal: "156,09", tag: "" },
-  { name: "HOME FIX 24", months: 24, mwh_dph: "1 571,79", mwh_bez: "1 299,00", pausal: "180,29", tag: "Doporučený ⭐" },
-  { name: "HOME FIX 36", months: 36, mwh_dph: "1 571,79", mwh_bez: "1 299,00", pausal: "180,29", tag: "Stejná cena jako 24M!" },
-];
-
-const FVE_PRODUKTY = [
-  { name: "Home Solar FIX MINI", limit: "do 1 MWh/rok", vykup: "1 000", pausal: "39", note: "ZK musí mít odběr elektřiny u Tramaco." },
-  { name: "Home Solar FIX", limit: "do 10 MWh/rok", vykup: "500", pausal: "59", note: "Nejpopulárnější. Střední střešní FVE." },
-  { name: "Home Solar FIX MAXI", limit: "nad 10 MWh/rok", vykup: "400", pausal: "99", note: "Velká FVE, vysoká výroba." },
-  { name: "Expert Solar FIX MINI", limit: "do 1 MWh/rok", vykup: "1 000", pausal: "39", note: "Pro firmy s IČO." },
-  { name: "Expert Solar FIX", limit: "do 10 MWh/rok", vykup: "500", pausal: "59", note: "Nejoblíbenější pro firmy." },
-  { name: "Expert Solar FIX MAXI", limit: "nad 10 MWh/rok", vykup: "400", pausal: "59", note: "Velká FVE, firma." },
-];
-
-const SAZBY = [
-  { code: "D01d", desc: "Jednotarifní – malý odběr, chaty, garáže. Jedna sazba celý den, žádný NT." },
-  { code: "D02d", desc: "Jednotarifní – běžná domácnost. Standardní odběr." },
-  { code: "D25d / D26d", desc: "Dvoutarifní – bojler a akumulační vytápění. 8 hodin NT." },
-  { code: "D27d", desc: "Dvoutarifní – elektromobil. 8 hodin NT." },
-  { code: "D35d", desc: "Dvoutarifní – kombinované vytápění. 20 hodin NT. Již se nenabízí." },
-  { code: "C01d", desc: "Jednotarifní – malé provozovny, obchody, kanceláře." },
-  { code: "C02d", desc: "Jednotarifní – střední odběr. Dílny, výrobní haly." },
-  { code: "C03d", desc: "Jednotarifní – velký odběr. Továrny, velkovýroba. Vyšší jistič." },
-  { code: "C25d / C26d", desc: "Dvoutarifní – akumulační spotřebiče. 8 hodin NT." },
-];
-
-// ── SOPs DATA ──────────────────────────────────────────────────────────────────
-
-const SOPS = [
-  {
-    id: "zalozeni",
-    title: "Založení zákazníka",
-    icon: "👤",
-    steps: [
-      { title: "Ověřit existenci ZK", content: "Otevřeme EIS. V prvním kroku vždy zkusíme, jestli ZK u nás není. Klikneme na Hledat, zadáme e-mail nebo jméno a dáme ENTER." },
-      { title: "Nový zákazník (domácnost)", content: "Pokud ZK nenajdeme → klikneme NOVÝ. Vyplníme: Typ zákazníka (Domácnost / Podnikatel), Jméno, Příjmení, Datum narození, Telefon, E-mail, Adresa trvalého bydliště. Uložíme." },
-      { title: "Nový zákazník (podnikatel)", content: "Vyplníme IČO → klikneme Ověřit v ARES. Automaticky se natáhnou údaje ze systému ARES. Vyplníme Zastupující osobu, telefon, e-mail. Uložíme." },
-    ],
-    warning: 'NIKDY nepodpisuj HOME smlouvu firmě a EXPERT smlouvu fyzické osobě! Vždy se zeptej: „Podepisujete jako fyzická osoba nebo firma?“',
-  },
-  {
-    id: "smlouva-dodavka",
-    title: "Smlouva – dodávka elektřiny",
-    icon: "⚡",
-    steps: [
-      { title: "Podklady od ZK", content: "Potřebujeme: vyplněnou žádost + poslední fakturu od stávajícího obchodníka (z ní zjistíme EAN, distribuční sazbu, spotřebu, jistič)." },
-      { title: "Vytvoření smluvního účtu", content: "V záložce Smlouvy a Odběrná místa klikneme NOVÝ. Zadáme: Typ smlouvy → Spotřeba. Vygenerujeme číslo smlouvy. Typ: Doba neurčitá (SPOT) nebo Doba určitá (FIX). Datum od dle stávající smlouvy. Výpovědní doba: SPOT domácnost 1 měsíc, SPOT firma 3 měsíce. FIX domácnost: nejpozději 20 dní před koncem fixace. FIX firma: nejpozději 3 měsíce." },
-      { title: "Technické údaje", content: "Typ měření: A = vysoké napětí, B = chytrý elektroměr (FVE, měsíční fakturace), C1 = nový standard místo B. Distribuční sazbu opíšeme z faktury. Roční spotřeba VT/NT. Způsob připojení: jednofázové nebo třífázové. Hodnota jističe: jen číslo (ne fáze) – např. 3×25A → zadáme 25. Číslo měřidla = číslo elektroměru." },
-      { title: "Odeslání k podpisu", content: "Vyplníme adresu OM → Uložíme. Veškeré podklady uložíme do Dokumentů. Klikneme Vytvořit a odeslat novou smlouvu k podpisu do SIGNI. Záložka Zprávy → pošleme e-mail ZK s návodem na podpis." },
-      { title: "Uzavření úkolu", content: 'V záložce Zákazník se vytvoří automaticky úkol Registrace zákazníka. Editujeme: Stav = Dokončený, Typ = Nová smlouva, Přiřadit = vlastní jméno. Do poznámky: „Smlouva na dodávku odeslána [datum]". Uložit.' },
-    ],
-    warning: "VT/NT výpočet: pokud znáš jen celkovou spotřebu a ZK má dvoutarifní sazbu: 8h NT = 33 % VT, 16h NT = 67 % VT, 20h NT = 83 % VT, 22h NT = 91 % VT.",
-  },
-  {
-    id: "smlouva-vykup",
-    title: "Smlouva – výkup elektřiny (FVE)",
-    icon: "☀️",
-    steps: [
-      { title: "Podklady – výrobní EAN", content: "Potřebujeme výrobní EAN (≠ spotřební EAN). Zákazník ho najde v: dokumentu o prvním paralelním připojení (PPP), smlouvě o připojení (SoP), předchozím vyúčtování, nebo e-mailu od distribuce. ⚠️ POZOR: v dokumentu UTP (uvedení do trvalého provozu) je VŽDY uveden EAN spotřební – nezaměňovat!" },
-      { title: "Smluvní účet", content: "Záložka Smlouvy a Odběrná místa → NOVÝ. Typ smlouvy: Výroba. Vygenerujeme číslo. Typ: Doba neurčitá (SPOT) nebo Doba určitá (FIX). Datum od: dle předchozí smlouvy, u nové FVE 10–14 dní. Výpovědní doba: 3 měsíce vždy. SPOT: od 1. dne následujícího měsíce po výpovědi. FIX: zákazník musí dát výpověď nejpozději 3 měsíce před koncem fixace." },
-      { title: "Výběr produktu", content: "Partner = Electree Interní. BO = Smlouva Online. Do poznámky: EAN výrobce, o jakou smlouvu jde, co je potřeba udělat. Vybereme produkt dle výroby: do 1 MWh = FIX MINI (1 000 Kč/MWh, 39 Kč paušál), do 10 MWh = FIX (500 Kč/MWh, 59 Kč paušál), nad 10 MWh = FIX MAXI (400 Kč/MWh, 99 Kč paušál)." },
-      { title: "Technické údaje FVE", content: "Instalovaný výkon (kWp) z projektu nebo smlouvy s instalátorem. Druh výrobny: Fotovoltaika. Kapacita baterie (pokud má). Typ měření: B nebo C1. Střídač – značka a model. OM = adresa FVE. Uložíme." },
-      { title: "Odeslání a uzavření", content: "Podklady do Dokumentů → odeslat smlouvu k podpisu do SIGNI. Úkol Registrace zákazníka: Stav = Dokončený, Typ = Nová smlouva, do poznámky datum odeslání. Orientační výpočet roční dodávky do sítě: (velikost baterie × 180 – instalovaný výkon) ÷ 2 = MWh/rok. Příklad: (14,2 × 180 – 10 000) ÷ 2 = 3,7 MWh/rok." },
-    ],
-  },
-  {
-    id: "prepis",
-    title: "Přepis výrobny",
-    icon: "🔄",
-    steps: [
-      { title: "Formulář k přepisu", content: "Od ZK potřebujeme: Žádost o změnu zákazníka – část A (původní ZK) i část B (nový ZK). Doklad o nabytí nebo zániku užívacího práva (kupní/nájemní smlouva). Přepis výrobny se NEZADÁVÁ na distribuci." },
-      { title: "Dohledání stávajícího ZK", content: "V EIS dohledáme stávajícího ZK. Nechám si EIS se stávajícím ZK otevřeného – budeme ho potřebovat." },
-      { title: "Nový ZK", content: "Otevřeme novou záložku EIS. Kontrola, zda nového ZK nemáme. Pokud ne → Nový ZK klasickým způsobem jako u nové smlouvy. Poté založíme pouze smluvní účet." },
-      { title: "Přepis výrobního EAN", content: "U stávajícího ZK zadáme datum ukončení smlouvy (smlouvy musí navazovat). Klikneme u smlouvy na Možnosti → Přepis OM. Vyběhne tabulka – napíšeme jméno nového ZK a vybereme. Nový ZK se zobrazí v kolonce Nový zákazník – pokud ZK u nás je, pozor na výběr správného čísla smlouvy." },
-      { title: "Dokončení přepisu", content: "Nyní vybereme produkt (NEPONECHÁVÁME stávající). Zkontrolujeme datum začátku výkupu (musí navazovat). Do poznámky: na koho se přepisuje. Zkontrolujeme technické údaje a adresu OM. Uložíme. Vytvoříme úkol Přepis výrobny. Uložíme podklady. Odešleme smlouvu k podpisu. Uzavřeme úkol registrace ZK." },
-    ],
-    warning: "Přepis se nezadává na distribuci. Datum přepisu snažíme dodržet do budoucna – v případě úmrtí nebo přelomu měsíce lze provést k 1. dni měsíce.",
-  },
-  {
-    id: "zmena-ceniku",
-    title: "Změna ceníku",
-    icon: "📋",
-    steps: [
-      { title: "Formulář ke změně", content: "Při změně cenového produktu chceme od ZK zaslat vyplněný formulář. Pokud ho nechce zaslat, provedeme kontrolu kontaktních a platebních údajů alespoň po telefonu." },
-      { title: "Postup v EIS", content: 'Nejprve zadáme konec původní smlouvy – smlouvy musí navazovat. Příklad: nová smlouva od 1.1.2026 → původní ukončíme k 31.12.2025. Uložíme. Proklikneme šedý obdélník s číslem smlouvy → vybereme Nový (kopie). Vyplníme smlouvu dle postupu Smlouva na výkup elektřiny. Do poznámky: „Změna ceníku od 1.1.2026".' },
-      { title: "Obnovení původního data", content: "Ihned po uložení nové smlouvy se vrátíme na smlouvu původní a datum konce smlouvy nastavíme na původní datum (většinou 31.12.9999 nebo 31.12.2099). Uložíme." },
-      { title: "Dokončení procesu", content: "Uložíme dokumenty. Odešleme mail s informací k podpisu. Odešleme smlouvu k podpisu do SIGNI. Uzavřeme úkol registrace ZK." },
-    ],
-  },
-];
-
-const TABS = [
-  { id: "elektrina", label: "⚡ Elektřina" },
-  { id: "plyn", label: "🔥 Plyn" },
-  { id: "fve", label: "☀️ FVE výkup" },
-  { id: "sazby", label: "🔌 Distribuční sazby" },
-  { id: "sops", label: "📋 SOPs / Postupy" },
-];
-
-function ProductRow({ item }: { item: typeof ELEKTRINA_HOME[0] }) {
-  return (
-    <div className="flex items-center gap-4 px-5 py-3.5 border-b border-[#D1DFD8] last:border-0">
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-[#0D3D34]">{item.name}</span>
-          {item.tag && <span className="text-[10px] bg-[#D7FF00] text-[#0D3D34] font-bold px-1.5 py-0.5 rounded-full">{item.tag}</span>}
-        </div>
-        <div className="text-xs text-[#0D3D34]/45 mt-0.5">{item.months} měsíců · paušál {item.pausal} Kč/měs.</div>
-      </div>
-      <div className="text-right">
-        <div className="text-sm font-bold text-[#0D3D34] font-mono">{item.mwh_dph} Kč/MWh</div>
-        <div className="text-[10px] text-[#0D3D34]/40 font-mono">{item.mwh_bez} Kč bez DPH</div>
-      </div>
-    </div>
-  );
+function normalize(s: string) {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
-function SopCard({ sop }: { sop: typeof SOPS[0] }) {
-  const [open, setOpen] = useState<number | null>(null);
-  return (
-    <div className="bg-white border border-[#D1DFD8] rounded-2xl overflow-hidden">
-      <div className="px-5 py-4 bg-[#EBF7F1] border-b border-[#D1DFD8] flex items-center gap-3">
-        <span className="text-2xl">{sop.icon}</span>
-        <h3 className="font-bold text-[#0D3D34]">{sop.title}</h3>
-      </div>
-      <div className="divide-y divide-[#D1DFD8]">
-        {sop.steps.map((step, i) => (
-          <div key={i}>
-            <button
-              onClick={() => setOpen(open === i ? null : i)}
-              className="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-[#F7FAF9] transition-colors"
-            >
-              <span className="w-6 h-6 rounded-full bg-[#0D3D34] text-[#D7FF00] text-[10px] font-black flex items-center justify-center flex-shrink-0">{i + 1}</span>
-              <span className="text-sm font-semibold text-[#0D3D34] flex-1">{step.title}</span>
-              <svg width="16" height="16" fill="none" stroke="#0D3D34" strokeWidth="2" viewBox="0 0 24 24" className={`flex-shrink-0 opacity-30 transition-transform ${open === i ? "rotate-180" : ""}`}>
-                <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            {open === i && (
-              <div className="px-5 pb-4 pt-1">
-                <p className="text-sm text-[#0D3D34]/70 leading-relaxed pl-9">{step.content}</p>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-      {sop.warning && (
-        <div className="px-5 py-3 bg-[#FFF8E1] border-t border-[#D1DFD8] flex gap-2">
-          <span className="text-base flex-shrink-0">⚠️</span>
-          <p className="text-xs text-[#7A5C00] leading-relaxed">{sop.warning}</p>
-        </div>
-      )}
-    </div>
-  );
-}
+type Category = "Produkt" | "Distribuce" | "SOP" | "Retence" | "Pojmy";
+
+type Article = {
+  id: string;
+  title: string;
+  category: Category;
+  tags: string[];
+  body: string;
+};
+
+const CAT_COLOR: Record<Category, string> = {
+  Produkt: "bg-[#D7FF00] text-[#0D3D34]",
+  Distribuce: "bg-[#EBF7F1] text-[#1A6B5A]",
+  SOP: "bg-[#0D3D34] text-white",
+  Retence: "bg-orange-100 text-orange-800",
+  Pojmy: "bg-blue-50 text-blue-800",
+};
+
+const ARTICLES: Article[] = [
+  {
+    id: "home-fix-12-el",
+    title: "HOME FIX 12 – elektřina",
+    category: "Produkt",
+    tags: ["home fix 12", "elektrina", "fixni tarif", "domacnosti", "12 mesicu", "kratka vazanost"],
+    body: `Cena s DPH: 3 084,29 Kč/MWh
+Cena bez DPH: 2 549,00 Kč/MWh
+Paušál: 156,09 Kč/měsíc s DPH
+Vázanost: 12 měsíců
+Segment: domácnosti (D-sazby)
+
+Nejkratší závazek v nabídce. Vhodné pro zákazníky, kteří chtějí flexibilitu nebo nechtějí dlouhý závazek.
+Po 12 měsících mohou odejít bez sankce nebo přejít na delší fixaci.
+
+Kdy nabídnout: zákazník váhá kvůli závazku, zákazník testuje Tramaco poprvé.`,
+  },
+  {
+    id: "home-fix-24-el",
+    title: "HOME FIX 24 – elektřina",
+    category: "Produkt",
+    tags: ["home fix 24", "elektrina", "fixni tarif", "domacnosti", "24 mesicu", "doporuceny", "oblibeny"],
+    body: `Cena s DPH: 2 842,29 Kč/MWh
+Cena bez DPH: 2 349,00 Kč/MWh
+Paušál: 180,29 Kč/měsíc s DPH
+Vázanost: 24 měsíců
+Segment: domácnosti (D-sazby)
+
+⭐ DOPORUČENÝ produkt – nejlepší poměr cena vs. délka závazku. Nejoblíbenější produkt Tramaco.
+
+Klíčový argument: "Na FIXu máte garantovanou cenu po celou dobu smlouvy – nezávisle na tom, co se děje na burze."
+
+Kdy nabídnout: zákazník chce jistotu, nechce sledovat burzu, domácnost s průměrnou spotřebou.`,
+  },
+  {
+    id: "home-fix-36-el",
+    title: "HOME FIX 36 – elektřina",
+    category: "Produkt",
+    tags: ["home fix 36", "elektrina", "fixni tarif", "domacnosti", "36 mesicu", "nejlevnejsi komodita"],
+    body: `Cena s DPH: 2 781,79 Kč/MWh
+Cena bez DPH: 2 299,00 Kč/MWh
+Paušál: 180,29 Kč/měsíc s DPH
+Vázanost: 36 měsíců
+Segment: domácnosti (D-sazby)
+
+Nejnižší cena komodity ze všech HOME FIX variant. Zákazník přijímá 3letý závazek za nejnižší fixní cenu.
+
+Kdy nabídnout: zákazník chce maximální úsporu a nevadí mu delší závazek.`,
+  },
+  {
+    id: "expert-fix-24-el",
+    title: "EXPERT FIX 24 – elektřina pro firmy",
+    category: "Produkt",
+    tags: ["expert fix", "firmy", "podnikatele", "C-sazby", "24 mesicu", "elektrina", "SME", "ico"],
+    body: `Cena s DPH: 2 963,29 Kč/MWh
+Cena bez DPH: 2 449,00 Kč/MWh
+Paušál: 180,29 Kč/měsíc s DPH
+Vázanost: 24 měsíců
+Segment: firmy a podnikatelé (C-sazby)
+
+Produkt pro firemní odběrná místa s C-sazbou distributora. Garantovaná cena, předvídatelný účet.
+
+Zákazník s D-sazbou → HOME FIX. Zákazník s C-sazbou (IČO) → EXPERT FIX.`,
+  },
+  {
+    id: "spot-tarif",
+    title: "SPOT tarif – elektřina",
+    category: "Produkt",
+    tags: ["spot", "burzovni cena", "OTE", "flexibilni", "AMM", "smart metr", "elektromobil", "FVE baterie"],
+    body: `Cena: kopíruje hodinové burzové ceny OTE (mění se každou hodinu)
+Podmínka: nutný smart metr AMM (automatické měření)
+Segment: domácnosti s flexibilní spotřebou
+
+Výhodný, když zákazník přesouvá spotřebu do levných hodin nebo má FVE/baterii.
+
+RIZIKO: při vysokých burzovních cenách může výrazně zdražit.
+
+Kdy nabídnout: elektromobil + nabíjení v noci, FVE nebo baterie, zákazník sleduje ceny.
+Kdy NENABÍZET: zákazník chce jistotu, nemá AMM metr, nemá flexibilní spotřebu.`,
+  },
+  {
+    id: "plyn-fix-12",
+    title: "HOME FIX plyn 12",
+    category: "Produkt",
+    tags: ["plyn", "home fix 12", "fixni", "zemni plyn", "domacnosti", "kratka vazanost", "12 mesicu"],
+    body: `Cena s DPH: 1 632,29 Kč/MWh
+Cena bez DPH: 1 349,00 Kč/MWh
+Paušál: 156,09 Kč/měsíc s DPH
+Vázanost: 12 měsíců
+
+Nejkratší závazek pro plyn. Vyšší cena komodity oproti 24M a 36M variantám.
+
+Kdy nabídnout: zákazník si není jistý, chce nejdříve vyzkoušet Tramaco na krátkou dobu.`,
+  },
+  {
+    id: "plyn-fix-24",
+    title: "HOME FIX plyn 24",
+    category: "Produkt",
+    tags: ["plyn", "home fix 24", "fixni", "zemni plyn", "domacnosti", "doporuceny", "24 mesicu"],
+    body: `Cena s DPH: 1 571,79 Kč/MWh
+Cena bez DPH: 1 299,00 Kč/MWh
+Paušál: 180,29 Kč/měsíc s DPH
+Vázanost: 24 měsíců
+
+⭐ DOPORUČENÝ produkt pro plyn. Nejlepší poměr cena vs. závazek.
+
+Cross-sell: zákazník má elektřinu u Tramaco → nabídni i plyn. "Máme výhodné podmínky i na plyn, vše v jedné smlouvě."
+
+Distributoři: GasNet (sever a střed ČR), Gas Distribution (jih ČR), Pražská plynárenská (Praha).`,
+  },
+  {
+    id: "plyn-fix-36",
+    title: "HOME FIX plyn 36",
+    category: "Produkt",
+    tags: ["plyn", "home fix 36", "fixni", "zemni plyn", "domacnosti", "36 mesicu"],
+    body: `Cena s DPH: 1 571,79 Kč/MWh (stejná jako HOME FIX plyn 24!)
+Cena bez DPH: 1 299,00 Kč/MWh
+Paušál: 180,29 Kč/měsíc s DPH
+Vázanost: 36 měsíců
+
+POZOR: cena komodity je totožná s HOME FIX plyn 24. Liší se pouze délkou závazku.
+
+Kdy nabídnout: zákazník chce maximální jistotu na nejdelší dobu a nevadí mu 3letý závazek.`,
+  },
+  {
+    id: "solar-fix-mini",
+    title: "Home Solar FIX MINI – výkup FVE",
+    category: "Produkt",
+    tags: ["solar", "FVE", "vykup", "fotovoltaika", "mini", "do 1 MWh", "mala vyroba", "balkon"],
+    body: `Výkupní cena: 1 000 Kč/MWh
+Limit výroby: do 1 MWh/rok
+Administrativní paušál: 39 Kč/měsíc
+Podmínka: zákazník musí mít zároveň odběr elektřiny u Tramaco
+
+Nejvyšší výkupní cena, nejnižší limit. Pro velmi malé FVE nebo balkónové elektrárny.
+
+Pokud výroba nestačí na pokrytí paušálu → pohledávka přechází do dalšího měsíce. Zákazník nikdy nedostane zápornou fakturu.`,
+  },
+  {
+    id: "solar-fix",
+    title: "Home Solar FIX – výkup FVE",
+    category: "Produkt",
+    tags: ["solar", "FVE", "vykup", "fotovoltaika", "standard", "do 10 MWh", "rodinny dum"],
+    body: `Výkupní cena: 500 Kč/MWh
+Limit výroby: do 10 MWh/rok
+Administrativní paušál: 59 Kč/měsíc
+
+⭐ NEJPOPULÁRNĚJŠÍ výkupní produkt. Ideální pro standardní střešní FVE na rodinném domě (3–10 kWp).
+
+Pokud výroba nestačí na pokrytí paušálu → pohledávka přechází do dalšího měsíce.`,
+  },
+  {
+    id: "solar-fix-maxi",
+    title: "Home Solar FIX MAXI – výkup FVE",
+    category: "Produkt",
+    tags: ["solar", "FVE", "vykup", "fotovoltaika", "maxi", "nad 10 MWh", "velka vyroba", "komercni"],
+    body: `Výkupní cena: 400 Kč/MWh
+Limit výroby: nad 10 MWh/rok
+Administrativní paušál: 99 Kč/měsíc
+
+Pro velké FVE s vysokou výrobou – zemědělské areály, komerční budovy, větší instalace.
+
+Pokud výroba nestačí na pokrytí paušálu → pohledávka přechází do dalšího měsíce.`,
+  },
+  {
+    id: "dist-sazby-d",
+    title: "Distribuční sazby D – domácnosti",
+    category: "Distribuce",
+    tags: ["distribucni sazby", "D-sazby", "D01", "D02", "D25", "D26", "D27", "D35", "D56", "domacnosti", "jistic", "VT NT"],
+    body: `Distribuční sazby D jsou pro domácnosti (fyzické osoby, bytové jednotky).
+
+D01 – Jednotarifová, jeden elektroměr, spotřeba bez omezení časem.
+D02 – Jednotarifová s vyšším příkonem (jistič ≥ 3×25 A).
+D25 – Dvoutarifová pro vytápění. NT platí min. 8 h/den.
+D26 – Dvoutarifová pro ohřev vody + vytápění. NT min. 8 h/den.
+D27 – Dvoutarifová pro přímotopné vytápění. NT min. 20 h/den.
+D35 – Pro tepelné čerpadlo. NT min. 22 h/den.
+D56 – Pro elektromobily. NT min. 8 h/den.
+
+VT (vysoký tarif) – dražší, přes den.
+NT (nízký tarif) – levnější, preferované hodiny.
+
+Sazbu zákazník najde na faktuře od distributora nebo v EIS po vyhledání EAN.`,
+  },
+  {
+    id: "dist-sazby-c",
+    title: "Distribuční sazby C – firmy",
+    category: "Distribuce",
+    tags: ["distribucni sazby", "C-sazby", "C01d", "C02d", "C03d", "C25d", "firmy", "podnikatele", "SME", "ico"],
+    body: `Distribuční sazby C jsou pro podnikatele a firmy (IČO, nízké napětí NN).
+
+C01d – Jednotarifová pro malé firmy.
+C02d – Dvoutarifová pro firmy.
+C03d – Dvoutarifová s vyšším příkonem.
+C25d – Dvoutarifová s rozšířenou dobou NT.
+
+Zákazník s C-sazbou → produkt EXPERT FIX.
+Zákazník s D-sazbou → produkt HOME FIX.
+
+Sazbu zákazník najde na faktuře od distributora nebo ji vidíte v EIS po vyhledání EAN.`,
+  },
+  {
+    id: "vt-nt",
+    title: "VT a NT – vysoký a nízký tarif",
+    category: "Pojmy",
+    tags: ["VT", "NT", "vysoky tarif", "nizky tarif", "dvoutarifova sazba", "elektroměr", "noc", "boiler"],
+    body: `VT (vysoký tarif): platí přes den, v pracovní době. Dražší cena elektřiny.
+NT (nízký tarif): platí v nočních hodinách nebo přes víkend (záleží na sazbě). Levnější cena.
+
+Zákazník s dvoutarifovou sazbou (D25, D26, D27, D35, D56) platí za VT a NT odděleně.
+
+Typické využití NT: elektroboiler, přímotopné vytápění, nabíjení elektromobilu, tepelné čerpadlo.
+
+Zákazník s D01 (jednotarifová) – platí jednotnou cenu, nemá NT/VT rozdělení.`,
+  },
+  {
+    id: "jistic",
+    title: "Jistič a příkon",
+    category: "Pojmy",
+    tags: ["jistic", "prikon", "ampery", "faze", "jednofazovy", "trifazovy", "kVA", "ampér", "rozvaděč"],
+    body: `Jistič (hlavní jistič): chrání obvod před přetížením. Hodnota v ampérech (A).
+
+Jednofázový: 1×16A, 1×25A, 1×32A → menší byty
+Třífázový: 3×16A, 3×25A, 3×32A, 3×40A, 3×63A → domy a firmy
+
+Orientační příkon:
+3×25A ≈ 10 kW | 3×32A ≈ 13 kW | 3×40A ≈ 16 kW
+
+Jistič ovlivňuje distribuční sazbu (D01 vs D02) a výši distribučního tarifu.
+Zákazník ho najde v elektroměrovém rozvaděči nebo na faktuře od distributora.`,
+  },
+  {
+    id: "ean",
+    title: "EAN odběratele vs EAN výrobce",
+    category: "Pojmy",
+    tags: ["EAN", "odberatel", "vyrobce", "spotrebni EAN", "vyrobni EAN", "FVE", "PPP", "UTP", "SoP", "18 cislic"],
+    body: `EAN odběratele (spotřební EAN):
+• Identifikuje odběrné místo – kam elektřina přichází
+• 18místné číslo
+• Zákazník ho najde na faktuře od distributora
+
+EAN výrobce (výrobní EAN):
+• Identifikuje výrobní místo FVE – odkud elektřina odchází do sítě
+• NUTNÝ pro aktivaci výkupní smlouvy – bez něj nelze smlouvu uzavřít!
+• Kde ho najít: PPP dokument, Smlouva o připojení (SoP), předchozí vyúčtování od výkupce, e-mail od distributora
+
+⚠️ POZOR: Dokument UTP (uvedení do trvalého provozu) obsahuje vždy SPOTŘEBNÍ EAN – nikdy výrobní!`,
+  },
+  {
+    id: "odstoupeni",
+    title: "Odstoupení od smlouvy – 14denní lhůta",
+    category: "Pojmy",
+    tags: ["odstoupeni", "14 dni", "lhuta", "zakon", "spotrebitel", "zruseni smlouvy", "pravo", "dalkovy prodej"],
+    body: `Zákon o ochraně spotřebitele – zákazník má právo odstoupit od smlouvy uzavřené na dálku (telefon, e-mail) do 14 dní od podpisu. Bez udání důvodu, bez sankce.
+
+V praxi:
+• Zákazník podepsal smlouvu s konkurencí → má ještě 14 dní na rozmyšlenou
+• Zákazník podepsal smlouvu s Tramaco → také má 14 dní
+
+Jak zákazník odstoupí: e-mailem nebo písemně na adresu dodavatele.
+
+Po uplynutí 14 dní: smlouva je závazná, lze ji ukončit pouze výpovědí.`,
+  },
+  {
+    id: "vypoved",
+    title: "Výpověď smlouvy a přechod k jinému dodavateli",
+    category: "Pojmy",
+    tags: ["vypoved", "prechod", "dodavatel", "lhuta", "konkurence", "zpetkvzeti", "30 dni", "45 dni"],
+    body: `Výpověď smlouvy s Tramaco:
+• Zákazník může podat výpověď kdykoli (bez čekání na konec fixace)
+• Výpovědní lhůta: zpravidla 30–45 dní dle smluvních podmínek
+• Po uplynutí lhůty dodávka přechází k novému dodavateli
+
+Zpětvzetí výpovědi:
+• Pokud dodávka u nového dodavatele JEŠTĚ nezačala, zákazník může výpověď vzít zpět
+• Zákazník pošle e-mail nebo zavolá – my zpracujeme zpětvzetí
+
+Přechod trvá: cca 30–45 dní od podání výpovědi (závisí na distributorovi).`,
+  },
+  {
+    id: "sop-zalozeni",
+    title: "SOP: Založení zákazníka v EIS",
+    category: "SOP",
+    tags: ["SOP", "EIS", "CRM", "novy zakaznik", "zalozeni", "postup", "system", "registrace"],
+    body: `1. Přihlásit se do EIS → sekce Zákazníci → Nový zákazník
+2. Vyplnit: jméno, příjmení, datum narození, adresa trvalého bydliště
+3. Zadat kontaktní údaje: telefon, e-mail
+4. Vyhledat EAN pomocí čísla EAN nebo adresy odběrného místa
+5. Zkontrolovat aktuálního dodavatele a sazbu distributora
+6. Spustit proces uzavření smlouvy
+
+Nutné doklady: doklad totožnosti (OP nebo pas), EAN číslo (z faktury od distributora).
+Po uložení systém automaticky odešle potvrzovací e-mail zákazníkovi.`,
+  },
+  {
+    id: "sop-smlouva-dodavka",
+    title: "SOP: Smlouva na dodávku elektřiny",
+    category: "SOP",
+    tags: ["SOP", "EIS", "smlouva", "dodavka", "elektrina", "uzavreni", "postup", "novy odber"],
+    body: `1. Zákazník nalezen nebo nově založen v EIS
+2. Vybrat produkt: HOME FIX 12/24/36 nebo EXPERT FIX 24
+3. Zadat EAN odběratele (spotřební EAN – 18 číslic)
+4. Zkontrolovat distribuční sazbu zákazníka (D nebo C)
+5. Nastavit datum zahájení dodávky (min. 30 dní od podpisu)
+6. Zákazník potvrdí smlouvu: SMS kód nebo písemně
+7. Odeslat zákazníkovi kopii smlouvy e-mailem
+
+Zákazník má 14 dní na odstoupení (bez udání důvodu).
+Přechod k Tramaco: distributor zpracuje cca 30–45 dní.`,
+  },
+  {
+    id: "sop-smlouva-vykup",
+    title: "SOP: Smlouva na výkup elektřiny (FVE)",
+    category: "SOP",
+    tags: ["SOP", "EIS", "smlouva", "vykup", "FVE", "fotovoltaika", "solar", "postup", "EAN vyrobce"],
+    body: `1. Ověřit, že zákazník má u Tramaco odběr elektřiny (nutné pro FIX MINI)
+2. Zjistit roční výrobu FVE → vybrat produkt (MINI / FIX / MAXI)
+3. Zadat EAN výrobce (výrobní EAN – NUTNÝ! Nikoli spotřební EAN)
+4. Ověřit dokument PPP nebo SoP – zde najdeme výrobní EAN
+5. POZOR: Z dokumentu UTP EAN výrobce NEVYTAHUJEME
+6. Vyplnit smlouvu v EIS → zákazník potvrdí (SMS nebo e-mail)
+7. Odeslat kopii smlouvy e-mailem
+
+Aktivace výkupu: cca 30–45 dní po podpisu (závisí na distributorovi).`,
+  },
+  {
+    id: "sop-prepis-vyrobny",
+    title: "SOP: Přepis výrobny (změna majitele FVE)",
+    category: "SOP",
+    tags: ["SOP", "prepis", "vyrobna", "FVE", "zmena majitele", "smrt", "dedictvi", "prodej domu"],
+    body: `Při prodeji nemovitosti nebo dědictví:
+
+1. Původní zákazník: výpověď smlouvy o výkupu (nebo zánik ze zákona)
+2. Nový majitel: doložit nabytí vlastnictví (kupní smlouva, usnesení o dědictví)
+3. Nový majitel musí mít nebo uzavřít odběrovou smlouvu u Tramaco
+4. Zahájit novou smlouvu o výkupu – viz SOP Smlouva výkup
+5. Znovu ověřit EAN výrobce (může být změněn distributorem)
+
+Upozornění: stará smlouva nepřechází automaticky. Nový majitel musí uzavřít smlouvu novou.`,
+  },
+  {
+    id: "sop-zmena-ceniku",
+    title: "SOP: Změna ceníku (přechod na jiný produkt)",
+    category: "SOP",
+    tags: ["SOP", "zmena ceniku", "prechod", "produkt", "upgrade", "fixace", "EIS"],
+    body: `Zákazník přechází z jednoho produktu na jiný:
+
+A) V aktivní fixaci → změna možná až po skončení fixace (nebo s poplatkem)
+B) Bez fixace → změna okamžitě možná
+
+Postup v EIS:
+1. Zákazník → záložka Smlouvy → zkontrolovat datum konce fixace
+2. Nová smlouva → vybrat nový produkt
+3. Zákazník potvrdí změnu (SMS nebo e-mail)
+4. Nový ceník platí od 1. dne příštího zúčtovacího období
+
+Podmínka: zákazník nesmí mít nedoplatek nad 2 000 Kč nebo probíhat exekuci.`,
+  },
+  {
+    id: "retence-postup",
+    title: "Retence – postup při odchodu zákazníka",
+    category: "Retence",
+    tags: ["retence", "odchod", "vypoved", "postup", "zakaznik", "chce odejit", "konkurence", "zachranit"],
+    body: `Postup při retenčním hovoru:
+
+1. NECHTE HO MLUVIT – nejprve zjistěte důvod, nepřerušujte
+2. EMPATIE – "Rozumím, to mě mrzí. Mohu se zeptat..."
+3. ZJISTĚTE KONKRÉTNÍ DŮVOD:
+   • Cena → zjistěte jejich nabídku, pak porovnejte
+   • Nespokojenost → co konkrétně se stalo, nabídněte nápravu
+   • Konkurence → co je na té nabídce zaujalo nejvíc?
+4. NABÍDNĚTE → až po pochopení důvodu
+5. Zákazník má 14 dní od podpisu nové smlouvy na odstoupení
+
+Klíč: zákazník nejlépe odhalí, co potřebujete nabídnout.`,
+  },
+  {
+    id: "retence-podepsal",
+    title: "Zákazník podepsal smlouvu u konkurence",
+    category: "Retence",
+    tags: ["retence", "podepsal jinde", "konkurence", "14 dni", "odstoupeni", "zpetkvzeti"],
+    body: `Zákazník říká, že podepsal smlouvu u konkurence:
+
+Do 14 dní od podpisu nové smlouvy:
+→ Zákazník může od nové smlouvy ODSTOUPIT (bez udání důvodu, bez sankce)
+→ "Ještě máte čas. Dokážeme vám nabídnout lepší podmínky."
+
+Do 15 dní od zahájení dodávky u nové firmy:
+→ Stále možné řešení, ale složitější
+
+Dodávka u konkurence ještě nezačala:
+→ Zákazník může vzít zpět výpověď u Tramaco
+→ Zákazník pošle e-mail nebo zavolá – my zpracujeme zpětvzetí
+
+NIKDY neříkejte zákazníkovi, že je pozdě, aniž byste to ověřili.`,
+  },
+  {
+    id: "namitka-cena",
+    title: "Námitka: Je to drahé / mám levnější nabídku",
+    category: "Retence",
+    tags: ["namitka", "cena", "drahe", "levneji", "konkurence", "srovnani", "retence", "uspora"],
+    body: `Zákazník říká "Je to drahé" nebo "Mám levnější nabídku":
+
+NEPŘISTUPUJTE OKAMŽITĚ NA SLEVU. Nejprve zjistěte:
+"Mohu se zeptat, jakou cenu za MWh vám nabídli?"
+
+Pokud zákazník řekne číslo:
+→ Porovnejte celkové náklady (paušál + cena MWh × spotřeba)
+→ Celková cena u Tramaco může být nižší i při vyšší ceně/MWh
+
+Pokud zákazník číslo neřekne:
+→ "Kolik MWh ročně spotřebujete?" → spusťte kalkulaci
+
+Klíčová formulace: "Mohu vás srovnat, protože někdy ta druhá nabídka vypadá levněji, ale celkově může vyjít dráž."`,
+  },
+];
+
+const QUICK = [
+  { label: "HOME FIX 24 – cena", q: "home fix 24 elektrina" },
+  { label: "Distribuční sazby D", q: "distribucni sazby domacnosti" },
+  { label: "EAN výrobce vs odběratele", q: "EAN vyrobce odberatel" },
+  { label: "Zákazník chce odejít", q: "retence odchazi" },
+  { label: "Výkup FVE – Solar produkty", q: "solar FVE vykup" },
+  { label: "Odstoupení od smlouvy", q: "odstoupeni 14 dni" },
+];
 
 export default function WikiPage() {
-  const [tab, setTab] = useState("elektrina");
-  const [sopSearch, setSopSearch] = useState("");
+  const [query, setQuery] = useState("");
+  const [openId, setOpenId] = useState<string | null>(null);
+
+  const words = useMemo(
+    () => normalize(query).split(" ").filter((w) => w.length > 1),
+    [query]
+  );
+
+  const results = useMemo(() => {
+    if (words.length === 0) return [];
+    return ARTICLES.map((a) => {
+      const titleN = normalize(a.title);
+      const tagsN = normalize(a.tags.join(" "));
+      const bodyN = normalize(a.body);
+      let score = 0;
+      for (const w of words) {
+        if (titleN.includes(w)) score += 3;
+        else if (tagsN.includes(w)) score += 2;
+        else if (bodyN.includes(w)) score += 1;
+        else { score = -1; break; }
+      }
+      return { ...a, score };
+    })
+      .filter((a) => a.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8);
+  }, [words]);
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#0D3D34]">Wiki & SOPs</h1>
-        <p className="text-[#0D3D34]/50 text-sm mt-1">Produkty, ceníky (platnost od 22. 4. 2026) a pracovní postupy v EIS.</p>
+    <div className="p-8 max-w-2xl mx-auto">
+      <div className="mb-8 text-center">
+        <h1 className="text-2xl font-bold text-[#0D3D34] mb-1">Wiki & SOPs</h1>
+        <p className="text-[#0D3D34]/45 text-sm mb-6">Produkty, ceníky, postupy, pojmy</p>
+
+        <div className="relative">
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0D3D34]/30" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+          </svg>
+          <input
+            autoFocus
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setOpenId(null); }}
+            placeholder="Napište co potřebujete vědět... (funguje i bez diakritiky)"
+            className="w-full bg-white border-2 border-[#D1DFD8] focus:border-[#0D3D34] rounded-2xl pl-11 pr-10 py-4 text-sm text-[#0D3D34] placeholder:text-[#0D3D34]/30 outline-none transition-all shadow-sm"
+          />
+          {query && (
+            <button
+              onClick={() => { setQuery(""); setOpenId(null); }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#0D3D34]/30 hover:text-[#0D3D34]/60 transition-colors text-xl leading-none"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-[#EBF7F1] p-1 rounded-xl mb-6 flex-wrap">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`flex-1 min-w-fit text-xs font-semibold py-2 px-3 rounded-lg transition-all whitespace-nowrap ${tab === t.id ? "bg-white text-[#0D3D34] shadow-sm" : "text-[#0D3D34]/55"}`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ELEKTŘINA */}
-      {tab === "elektrina" && (
-        <div className="space-y-5">
-          <div className="bg-white border border-[#D1DFD8] rounded-2xl overflow-hidden">
-            <div className="px-5 py-4 bg-[#EBF7F1] border-b border-[#D1DFD8]">
-              <h2 className="font-bold text-[#0D3D34]">HOME FIX – Domácnosti</h2>
-              <p className="text-xs text-[#0D3D34]/50 mt-0.5">Fyzická osoba bez IČO. Ceny s DPH.</p>
-            </div>
-            {ELEKTRINA_HOME.map((p) => <ProductRow key={p.name} item={p} />)}
+      {!query && (
+        <div>
+          <div className="text-xs font-bold text-[#0D3D34]/30 uppercase tracking-widest mb-3 text-center">Nejčastější témata</div>
+          <div className="grid grid-cols-2 gap-2 mb-6">
+            {QUICK.map((s) => (
+              <button
+                key={s.q}
+                onClick={() => setQuery(s.q)}
+                className="text-left bg-white border border-[#D1DFD8] rounded-xl px-4 py-3 text-xs font-medium text-[#0D3D34] hover:border-[#0D3D34]/30 hover:shadow-sm transition-all"
+              >
+                {s.label} →
+              </button>
+            ))}
           </div>
-          <div className="bg-white border border-[#D1DFD8] rounded-2xl overflow-hidden">
-            <div className="px-5 py-4 bg-[#EBF7F1] border-b border-[#D1DFD8]">
-              <h2 className="font-bold text-[#0D3D34]">EXPERT FIX – Firmy a podnikatelé</h2>
-              <p className="text-xs text-[#0D3D34]/50 mt-0.5">Fyzická nebo právnická osoba s IČO. Ceny s DPH.</p>
-            </div>
-            {ELEKTRINA_EXPERT.map((p) => <ProductRow key={p.name} item={p} />)}
-          </div>
-          <div className="bg-[#EBF7F1] border border-[#D1DFD8] rounded-2xl p-4 flex gap-3">
-            <span className="text-xl">⚠️</span>
-            <div className="text-sm text-[#0D3D34]/75 leading-relaxed">
-              <strong>NEZAMĚŇOVAT kategorie!</strong> HOME = domácnost bez IČO. EXPERT = firma/podnikatel s IČO. Vždy se zeptej: <em>„Podepisujete smlouvu jako fyzická osoba nebo firma?"</em>
-            </div>
-          </div>
-          <div className="bg-white border border-[#D1DFD8] rounded-2xl p-5">
-            <h3 className="font-bold text-[#0D3D34] mb-3">Regulované poplatky (stejné pro HOME i EXPERT)</h3>
-            <div className="grid sm:grid-cols-2 gap-3 text-sm">
-              {[
-                ["Daň z elektřiny", "28,30 Kč/MWh bez DPH"],
-                ["Systémové služby (ČEPS)", "164,24 Kč/MWh bez DPH"],
-                ["Podpora OZE (POZE)", "0,00 Kč/MWh (aktuálně)"],
-                ["Provoz infrastruktury", "12,87 Kč/měs. bez DPH"],
-                ["1. upomínka", "zdarma e-mailem"],
-                ["2. upomínka", "200 Kč bez DPH"],
-              ].map(([k, v]) => (
-                <div key={k} className="flex justify-between gap-3 py-1 border-b border-[#D1DFD8]">
-                  <span className="text-[#0D3D34]/60">{k}</span>
-                  <span className="font-mono text-[#0D3D34] font-semibold text-xs">{v}</span>
-                </div>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {(["Produkt", "Distribuce", "SOP", "Retence", "Pojmy"] as Category[]).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setQuery(cat.toLowerCase())}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all hover:opacity-80 ${CAT_COLOR[cat]}`}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
         </div>
       )}
 
-      {/* PLYN */}
-      {tab === "plyn" && (
-        <div className="space-y-5">
-          <div className="bg-white border border-[#D1DFD8] rounded-2xl overflow-hidden">
-            <div className="px-5 py-4 bg-[#EBF7F1] border-b border-[#D1DFD8]">
-              <h2 className="font-bold text-[#0D3D34]">HOME FIX – Zemní plyn pro domácnosti</h2>
-              <p className="text-xs text-[#0D3D34]/50 mt-0.5">Ceny s DPH. Distribuci zajišťuje GasNet / Gas Distribution / Pražská plynárenská.</p>
-            </div>
-            {PLYN_HOME.map((p) => <ProductRow key={p.name} item={p} />)}
-          </div>
-          <div className="bg-white border border-[#D1DFD8] rounded-2xl p-5">
-            <h3 className="font-bold text-[#0D3D34] mb-4">Distribuční pásma zemního plynu</h3>
-            <div className="space-y-2">
-              {[
-                ["do 1,89 MWh/rok", "Velmi malý odběr – chata, garáž s kotlíkem. Nejvyšší distribuční sazba."],
-                ["1,89 – 7,56 MWh/rok", "Malý byt nebo firma s minimálním topením."],
-                ["7,56 – 15 MWh/rok", "Průměrná domácnost (byt s plynovým kotlem). Nejčastější pásmo."],
-                ["15 – 25 MWh/rok", "Větší domácnost nebo malá firma. Rodinný dům."],
-                ["25 MWh/rok a více", "Velká spotřeba – výrobní prostory, obchodní centra."],
-              ].map(([range, desc]) => (
-                <div key={range} className="flex gap-3 py-2 border-b border-[#D1DFD8] last:border-0">
-                  <span className="text-xs font-mono font-bold text-[#0D3D34] w-36 flex-shrink-0">{range}</span>
-                  <span className="text-xs text-[#0D3D34]/60">{desc}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="bg-[#EBF7F1] border border-[#D1DFD8] rounded-2xl p-4">
-            <p className="text-sm text-[#0D3D34]/75 leading-relaxed">
-              <strong>Zálohy:</strong> Nastavit vždy na zimní spotřebu! Zálohy moc nízké → nedoplatek (zákazník nešťastný). Správné zálohy = klid. U nového zákazníka vždy doporučit zálohu dle reálné spotřeby.
-            </p>
-          </div>
+      {query && results.length === 0 && (
+        <div className="text-center py-12">
+          <div className="text-3xl mb-3">🔍</div>
+          <div className="text-[#0D3D34]/50 text-sm">Nic nenalezeno pro &quot;{query}&quot;</div>
+          <div className="text-[#0D3D34]/30 text-xs mt-1">Zkuste jiné slovo nebo méně slov</div>
         </div>
       )}
 
-      {/* FVE */}
-      {tab === "fve" && (
-        <div className="space-y-5">
-          <div className="bg-white border border-[#D1DFD8] rounded-2xl overflow-hidden">
-            <div className="px-5 py-4 bg-[#EBF7F1] border-b border-[#D1DFD8]">
-              <h2 className="font-bold text-[#0D3D34]">Výkupní produkty – pevná cena (FIX)</h2>
-              <p className="text-xs text-[#0D3D34]/50 mt-0.5">Zákazník dostává fixní výkupní cenu bez ohledu na burzu. Žádné DPH z výkupu.</p>
-            </div>
-            <div className="divide-y divide-[#D1DFD8]">
-              {FVE_PRODUKTY.map((p) => (
-                <div key={p.name} className="px-5 py-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="text-sm font-bold text-[#0D3D34]">{p.name}</div>
-                      <div className="text-xs text-[#0D3D34]/45 mt-0.5">Limit: {p.limit} · Paušál: {p.pausal} Kč/měs.</div>
-                      <div className="text-xs text-[#1A6B5A] mt-1">{p.note}</div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-lg font-bold text-[#0D3D34] font-mono">{p.vykup}</div>
-                      <div className="text-[10px] text-[#0D3D34]/40">Kč/MWh</div>
-                    </div>
+      {results.length > 0 && (
+        <div className="space-y-2">
+          <div className="text-xs text-[#0D3D34]/30 mb-2">
+            {results.length} {results.length === 1 ? "výsledek" : "výsledky"}
+          </div>
+          {results.map((article) => (
+            <div key={article.id} className="bg-white border border-[#D1DFD8] rounded-2xl overflow-hidden">
+              <button
+                onClick={() => setOpenId(openId === article.id ? null : article.id)}
+                className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-[#F7FAF9] transition-colors"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="mb-1">
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${CAT_COLOR[article.category]}`}>
+                      {article.category}
+                    </span>
                   </div>
+                  <div className="font-semibold text-[#0D3D34] text-sm">{article.title}</div>
+                  <div className="text-xs text-[#0D3D34]/40 mt-0.5 truncate">{article.body.split("\n")[0]}</div>
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="bg-white border border-[#D1DFD8] rounded-2xl p-5">
-            <h3 className="font-bold text-[#0D3D34] mb-4">Checklist uzavření smlouvy na výkup</h3>
-            <div className="space-y-2">
-              {[
-                ["01", "Výrobní EAN", "Bez výrobního EAN smlouvu nelze aktivovat. Zákazník ho najde v PPP, SoP nebo u distributora. POZOR: UTP dokument obsahuje EAN spotřební!"],
-                ["02", "Typ FVE", "FVE musí být připojena k distribuční síti. Ostrovní systémy (bez připojení) výkupovat nemůžeme."],
-                ["03", "Instalovaný výkon (kWp)", "Z projektu FVE nebo smlouvy s instalátorem. Pomůže vybrat FIX MINI / FIX / FIX MAXI."],
-                ["04", "Roční výroba (MWh)", "Odhad z projektu nebo monitoringu FVE. Klíčový parametr pro produkt."],
-                ["05", "Licenci ERÚ", "Výrobce elektřiny musí mít licenci od ERÚ (Energetický regulační úřad)."],
-                ["06", "Smart meter (AMM)", "Pro SPOT výkup je nutný chytrý elektroměr pro hodinové měření."],
-              ].map(([num, title, desc]) => (
-                <div key={num} className="flex gap-3 items-start py-2 border-b border-[#D1DFD8] last:border-0">
-                  <span className="w-6 h-6 rounded-full bg-[#0D3D34] text-[#D7FF00] text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">{num}</span>
-                  <div>
-                    <div className="text-sm font-semibold text-[#0D3D34]">{title}</div>
-                    <div className="text-xs text-[#0D3D34]/55 mt-0.5">{desc}</div>
-                  </div>
+                <svg
+                  className={`flex-shrink-0 text-[#0D3D34]/30 transition-transform duration-200 ${openId === article.id ? "rotate-180" : ""}`}
+                  width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
+                >
+                  <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              {openId === article.id && (
+                <div className="px-5 pb-5 border-t border-[#D1DFD8]">
+                  <pre className="text-sm text-[#0D3D34]/80 leading-relaxed whitespace-pre-wrap font-sans mt-4">
+                    {article.body}
+                  </pre>
                 </div>
-              ))}
+              )}
             </div>
-          </div>
-          <div className="bg-[#EBF7F1] border border-[#D1DFD8] rounded-2xl p-4">
-            <p className="text-sm text-[#0D3D34]/75 leading-relaxed">
-              <strong>Orientační výpočet roční dodávky do sítě:</strong><br />
-              (Velikost baterie × 180 − instalovaný výkon FVE) ÷ 2 = MWh/rok<br />
-              Příklad: (14,2 × 180 − 10 000) ÷ 2 = <strong>3,7 MWh/rok</strong>. Vždy jen orientačně.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* SAZBY */}
-      {tab === "sazby" && (
-        <div className="space-y-5">
-          <div className="bg-white border border-[#D1DFD8] rounded-2xl overflow-hidden">
-            <div className="px-5 py-4 bg-[#EBF7F1] border-b border-[#D1DFD8]">
-              <h2 className="font-bold text-[#0D3D34]">Distribuční sazby</h2>
-              <p className="text-xs text-[#0D3D34]/50 mt-0.5">Sazbu zákazníka najdeš na jeho faktuře od distributora. Tramaco ji nenastavuje.</p>
-            </div>
-            <div className="divide-y divide-[#D1DFD8]">
-              {SAZBY.map((s) => (
-                <div key={s.code} className="flex gap-4 px-5 py-3.5">
-                  <span className="text-xs font-mono font-bold text-[#0D3D34] w-24 flex-shrink-0 mt-0.5">{s.code}</span>
-                  <span className="text-sm text-[#0D3D34]/65">{s.desc}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="bg-white border border-[#D1DFD8] rounded-2xl p-5">
-            <h3 className="font-bold text-[#0D3D34] mb-4">Typy elektroměrů / měření</h3>
-            <div className="space-y-3">
-              {[
-                ["Typ C – Maloodběr", "Přímé zapojení bez transformátorů, napěťová hladina NN. Standardní odečet ročně nebo samoodečet. Typicky domácnosti a drobní podnikatelé. Jednotarifní nebo dvoutarifní měření."],
-                ["Typ B – Střední odběr", "Zapojení přes proudové transformátory, průběhové měření každých 15 minut. Typicky větší firmy, obchodní centra, majitelé FVE nebo ti, co sdílejí elektřinu."],
-                ["Typ A – Velkoodběr", "Zapojení přes proudové i napěťové transformátory, napěťová hladina VN a VVN. Povinné průběhové měření každých 15 minut. Průmyslové podniky."],
-                ["Typ C1 – Nový standard", "Nyní se místo B instaluje většinou C1. Zákazníci s FVE, měsíční fakturace. Nahrazuje typ B pro nové instalace."],
-              ].map(([typ, desc]) => (
-                <div key={typ} className="border border-[#D1DFD8] rounded-xl p-4">
-                  <div className="text-sm font-bold text-[#0D3D34] mb-1">{typ}</div>
-                  <div className="text-xs text-[#0D3D34]/60 leading-relaxed">{desc}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="bg-[#EBF7F1] border border-[#D1DFD8] rounded-2xl p-4">
-            <p className="text-sm text-[#0D3D34]/75 leading-relaxed">
-              <strong>VT / NT:</strong> Tramaco účtuje STEJNOU cenu komodity za VT i NT. Výhodu NT tarifu zákazník má pouze v distribuci (levnější v noci u dvoutarifních sazeb D25d, D26d...).
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* SOPs */}
-      {tab === "sops" && (
-        <div className="space-y-5">
-          <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0D3D34]/30" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-            </svg>
-            <input
-              value={sopSearch}
-              onChange={(e) => setSopSearch(e.target.value)}
-              placeholder="Hledat v postupech..."
-              className="w-full pl-9 pr-4 py-2.5 bg-white border border-[#D1DFD8] rounded-xl text-sm text-[#0D3D34] focus:outline-none focus:border-[#0D3D34]/30"
-            />
-          </div>
-          {SOPS.filter((s) =>
-            !sopSearch || s.title.toLowerCase().includes(sopSearch.toLowerCase()) ||
-            s.steps.some((st) => st.title.toLowerCase().includes(sopSearch.toLowerCase()) || st.content.toLowerCase().includes(sopSearch.toLowerCase()))
-          ).map((sop) => <SopCard key={sop.id} sop={sop} />)}
+          ))}
         </div>
       )}
     </div>
