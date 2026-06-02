@@ -110,6 +110,87 @@ Kdy nabídnout: elektromobil + nabíjení v noci, FVE nebo baterie, zákazník s
 Kdy NENABÍZET: zákazník chce jistotu, nemá AMM metr, nemá flexibilní spotřebu.`,
   },
   {
+    id: "home-spot",
+    title: "HOME SPOT – spotový tarif elektřina",
+    category: "Produkt",
+    tags: ["home spot", "spot", "burzovni cena", "OTE", "fotovoltaika", "flexibilni spotreba", "99 kc"],
+    body: `Cena: spotová cena OTE + 349 Kč/MWh bez DPH (přirážka)
+Měsíční poplatek: 99 Kč bez DPH
+Podmínka: nutný smart metr AMM
+
+Cena elektřiny se mění podle aktuálního trhu OTE – každou hodinu jiná. Vhodné pro zákazníky, kteří mají fotovoltaiku nebo dokáží přizpůsobit spotřebu levným hodinám.
+
+Plusy: cena odpovídá trhu, může být výhodné v levných hodinách, vhodné s FVE.
+Mínusy: nutnost hlídat ceny, vyšší riziko výkyvů, nemožnost zachytit všechny levné hodiny.
+
+Kdy nabídnout: zákazník má FVE nebo flexibilní spotřebu a chápe princip trhu.
+Kdy NENABÍZET: zákazník chce jistotu, nemá AMM metr.`,
+  },
+  {
+    id: "home-electree-drive",
+    title: "HOME ELECTREE DRIVE – tarif pro elektromobily",
+    category: "Produkt",
+    tags: ["electree drive", "elektromobil", "nabijeni", "spot", "automaticke rizeni", "chytre nabijeni", "EV"],
+    body: `Cena: spotová cena OTE + 319 Kč/MWh bez DPH (nižší přirážka než HOME SPOT)
+Měsíční poplatek: 130 Kč bez DPH
+Určeno pro: majitele elektromobilů
+
+Automatické řízení spotřeby přes aplikaci Electree Connect. Nabíjení probíhá automaticky v nejlevnějších hodinách – zákazník nemusí sledovat trh ručně. Možnost nabíjet i při záporných cenách.
+
+Plusy: nižší přirážka než HOME SPOT, automatické řízení, přehled v aplikaci, ideální pro EV.
+Mínusy: stále spotový produkt, největší smysl má jen při skutečném využití chytrého nabíjení.
+
+Kdy nabídnout: zákazník má elektromobil a chce optimalizovat náklady na nabíjení.`,
+  },
+  {
+    id: "solar-spot-free",
+    title: "HOME SOLAR SPOT FREE – spotový výkup FVE",
+    category: "Produkt",
+    tags: ["solar spot free", "FVE", "vykup", "spot", "bez srazky", "do 5 MWh"],
+    body: `Výkupní cena: čistá spotová cena OTE bez srážky
+Limit přetoků: do 5 MWh ročně
+Měsíční poplatek: 199 Kč bez DPH
+Závazek: na dobu neurčitou
+
+Zákazník prodává přetoky za aktuální tržní cenu bez přirážky ani srážky. Cena se mění podle trhu.
+
+Plusy: čistá spotová cena bez srážky, jednoduché.
+Mínusy: příjem kolísá, bez ochrany před zápornými cenami.
+
+Kdy nabídnout: zákazník s nižšími přetoky (do 5 MWh/rok) chce jet podle trhu.`,
+  },
+  {
+    id: "solar-spot",
+    title: "HOME SOLAR SPOT – spotový výkup FVE",
+    category: "Produkt",
+    tags: ["solar spot", "FVE", "vykup", "spot", "do 15 MWh", "15 minut"],
+    body: `Výkupní cena: spotová cena OTE − 390 Kč/MWh bez DPH (srážka)
+Limit přetoků: do 15 MWh ročně
+Měsíční poplatek: 99 Kč bez DPH
+Cena se mění každých 15 minut.
+
+Pozor: nutnost hlídat ceny na trhu, vyšší riziko výkyvů příjmů, bez ochrany před zápornými cenami.
+
+Kdy nabídnout: zákazník rozumí spotovému modelu a chce výkup do 15 MWh ročně.`,
+  },
+  {
+    id: "solar-spot-free-maxi",
+    title: "HOME SOLAR SPOT FREE MAXI – spotový výkup FVE (velký)",
+    category: "Produkt",
+    tags: ["solar spot free maxi", "FVE", "vykup", "spot", "nad 5 MWh", "velka vyroba"],
+    body: `Výkupní cena: čistá spotová cena OTE bez srážky
+Limit přetoků: nad 5 MWh ročně
+Měsíční poplatek: 299 Kč bez DPH
+Závazek: na dobu neurčitou
+
+Pro zákazníky s vyššími přetoky, kteří chtějí spotový výkup bez srážky.
+
+Plusy: čistá spotová cena bez srážky, pro větší výrobu.
+Mínusy: příjem kolísá, vyšší poplatek.
+
+Kdy nabídnout: zákazník s vyššími přetoky (nad 5 MWh/rok) chce spotový model.`,
+  },
+  {
     id: "plyn-fix-12",
     title: "HOME FIX plyn 12",
     category: "Produkt",
@@ -135,7 +216,7 @@ Vázanost: 24 měsíců
 
 ⭐ DOPORUČENÝ produkt pro plyn. Nejlepší poměr cena vs. závazek.
 
-Cross-sell: zákazník má elektřinu u Tramaco → nabídni i plyn. "Máme výhodné podmínky i na plyn, vše v jedné smlouvě."
+Cross-sell: zákazník má elektřinu u Electree → nabídni i plyn. "Máme výhodné podmínky i na plyn, vše v jedné smlouvě."
 
 Distributoři: GasNet (sever a střed ČR), Gas Distribution (jih ČR), Pražská plynárenská (Praha).`,
   },
@@ -337,7 +418,7 @@ Po uložení systém automaticky odešle potvrzovací e-mail zákazníkovi.`,
 7. Odeslat zákazníkovi kopii smlouvy e-mailem
 
 Zákazník má 14 dní na odstoupení (bez udání důvodu).
-Přechod k Tramaco: distributor zpracuje cca 30–45 dní.`,
+Přechod k Electree: distributor zpracuje cca 30–45 dní.`,
   },
   {
     id: "sop-smlouva-vykup",

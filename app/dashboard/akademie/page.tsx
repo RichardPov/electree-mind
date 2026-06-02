@@ -3,268 +3,656 @@ import { useState } from "react";
 import { useProgress } from "@/hooks/useProgress";
 
 type QuizQuestion = { q: string; a: string[]; correct: number; explanation: string };
+type LessonDef = { title: string; mins: number; type: "video" | "reading" | "quiz" };
+type Module = {
+  id: string;
+  icon: string;
+  title: string;
+  subtitle: string;
+  total: number;
+  locked?: boolean;
+  lessons: LessonDef[];
+  content: Record<string, { body?: string; quiz?: QuizQuestion[] }>;
+};
 
-const COURSES = [
+// ─── LEVEL A ────────────────────────────────────────────────────────────────
+
+const LEVEL_A: Module[] = [
   {
-    id: "elektrina",
+    id: "kdo-jsme",
+    icon: "🏢",
+    title: "Kdo jsme",
+    subtitle: "Identita Electree, trh, naše síla",
+    total: 3,
+    lessons: [
+      { title: "Co je Electree", mins: 5, type: "reading" },
+      { title: "Kde jsme na trhu", mins: 5, type: "reading" },
+      { title: "Ověřte znalosti", mins: 8, type: "quiz" },
+    ],
+    content: {
+      "Co je Electree": {
+        body: `Electree je moderní energetická firma z Brna. Dodává elektřinu, dodává plyn a vykupuje elektřinu, hlavně z obnovitelných zdrojů. Na svém webu se představuje jako transparentní obchodník se zelenou energií a firma, která staví na chytrém řízení, datech a energetických službách.
+
+Za firmou stojí Lubomír Káňa a Ruben Marada. Electree nevznikla jako obyčejný další dodavatel energií. Od začátku byla postavená na modernějším pohledu na energetiku – na chytrém využití dat, technologií a zejména na práci s výkupem energie a obnovitelnými zdroji.
+
+NA ČEM ELECTREE VYROSTLA
+Electree vyrostla hlavně na výkupu elektřiny a na práci s moderní energetikou kolem fotovoltaiky a přebytků. Firma se specializuje na výkup elektřiny ze všech obnovitelných zdrojů, zejména na přetoky z fotovoltaiky.
+
+To je důležité: Electree není jen "dodavatel elektřiny". Je to firma, která má silné kořeny ve výkupu a v moderní práci s energií.
+
+CO ELECTREE DĚLÁ DNES
+Dnes Electree stojí na třech hlavních oblastech:
+• Výkup elektřiny – hlavně přetoků z fotovoltaiky a dalších obnovitelných zdrojů
+• Dodávka elektřiny – pro domácnosti i firmy, včetně fixních i spotových cen
+• Dodávka plynu – jako součást kompletního energetického řešení
+
+JAK MLUVÍME O SOBĚ SE ZÁKAZNÍKEM
+Electree se zákazníkovi nereprezentuje jako levný sleeper na trhu, ale jako transparentní partner pro moderní energetiku. Komunikujeme jednoduše, férovost a přehlednost jsou naše hodnoty.`,
+      },
+      "Kde jsme na trhu": {
+        body: `NAŠE POZICE NA TRHU
+
+Dodávka elektřiny
+Největšími dodavateli elektřiny jsou ČEZ, E.ON a PRE. Electree má přibližně 24–25 tisíc odběrných míst elektřiny. Jsme menší až střední hráč – nejsme v první pětce trhu, ale zároveň nejsme zanedbatelnou firmou.
+
+Dodávka plynu
+V plynu jsme zatím malý hráč – přibližně 3 200–3 900 odběrných míst. Největší dodavatelé plynu mají stovky tisíc až více než milion odběrných míst. Plyn je pro Electree novější a rozvojová oblast.
+
+Výkup elektřiny
+Electree patří mezi významné výkupce elektřiny v České republice – máme přibližně 17 tisíc výrobních míst. To je naše skutečná síla.
+
+NAŠE VÝHODY OPROTI VELKÝM HRÁČŮM
+Největší hráči mají obrovská portfolia, ale my máme jiné silné stránky:
+
+• Silný základ ve výkupu elektřiny – rozumíme FVE lépe než většina konkurence
+• Rozumíme moderní energetice – fotovoltaika, přetoky, chytré řízení
+• Jsme menší → rychlejší, osobnější a víc servisní
+• Zákazníkovi nabídneme srozumitelnější a férovější přístup
+• Technologické zázemí – aplikace Electree Connect, automatizace
+
+JAK TO ŘÍCT ZÁKAZNÍKOVI
+Nesrovnávejte se s ČEZ nebo E.ON. Mluvte o tom, co Electree umí lépe: férovost, jednoduchost, FVE expertise, osobní přístup. Zákazník nekupuje "kdo je největší" – kupuje toho, komu věří.`,
+      },
+      "Ověřte znalosti": {
+        quiz: [
+          { q: "Odkud pochází Electree?", a: ["Praha", "Brno", "Ostrava", "Plzeň"], correct: 1, explanation: "Electree je moderní energetická firma z Brna." },
+          { q: "Kdo jsou zakladatelé Electree?", a: ["Jan Novák a Petr Svoboda", "Lubomír Káňa a Ruben Marada", "Martin Dvořák a Jana Procházková", "Tomáš Král a Pavel Krejčí"], correct: 1, explanation: "Za firmou stojí Lubomír Káňa a Ruben Marada." },
+          { q: "Na čem Electree primárně vyrostla?", a: ["Dodávce plynu", "Dodávce elektřiny pro firmy", "Výkupu elektřiny z obnovitelných zdrojů a FVE", "Prodeji solárních panelů"], correct: 2, explanation: "Electree vyrostla na výkupu elektřiny a práci s FVE přetoky – to je její skutečná síla." },
+          { q: "Kolik odběrných míst pro výkup elektřiny má přibližně Electree?", a: ["5 tisíc", "10 tisíc", "17 tisíc", "50 tisíc"], correct: 2, explanation: "Electree má přibližně 17 tisíc výrobních míst pro výkup – to je klíčová oblast." },
+          { q: "Jak velký hráč je Electree v dodávce elektřiny?", a: ["Největší na trhu", "Menší až střední hráč (24–25 tis. odběrných míst)", "Druhý největší za ČEZ", "Pouze regionální firma"], correct: 1, explanation: "Electree má přibližně 24–25 tisíc odběrných míst elektřiny – je to menší až střední hráč." },
+          { q: "Kdo jsou největší dodavatelé elektřiny v ČR?", a: ["Electree, Bohemia Energy, MND", "ČEZ, E.ON a PRE", "RWE, Innogy a EON", "Electree, ČEZ a E.ON"], correct: 1, explanation: "Největšími dodavateli elektřiny jsou ČEZ, E.ON a PRE. Electree je menší hráč s jinými silnými stránkami." },
+          { q: "Jak je Electree pozicionovaná vůči zákazníkům?", a: ["Jako nejlevnější dodavatel na trhu", "Jako transparentní obchodník se zelenou energií", "Jako největší tuzemský dodavatel", "Jako výhradně firemní dodavatel"], correct: 1, explanation: "Electree se prezentuje jako transparentní obchodník se zelenou energií – férovost a jednoduchost jsou klíčové hodnoty." },
+          { q: "Jakou výhodu má Electree oproti velkým hráčům?", a: ["Nižší ceny než ČEZ vždy", "Největší síť distribučních bodů", "Rychlejší, osobnější přístup a FVE expertise", "Nejdelší doba existence na trhu"], correct: 2, explanation: "Naše síla je v rychlosti, osobním přístupu, FVE expertíze a férovosti – ne v objemu." },
+          { q: "Kolik odběrných míst plynu má přibližně Electree?", a: ["500 míst", "3 200–3 900 míst", "50 tisíc míst", "Electree plyn nenabízí"], correct: 1, explanation: "V plynu má Electree přibližně 3 200–3 900 odběrných míst – jde o novější a rozvojovou oblast." },
+          { q: "Jaké jsou tři hlavní oblasti podnikání Electree?", a: ["FVE výroba, instalace panelů, servis", "Výkup elektřiny, dodávka elektřiny, dodávka plynu", "Dodávka elektřiny, dodávka plynu, prodej tepla", "Obchodování na burze, FVE, plyn"], correct: 1, explanation: "Electree stojí na třech oblastech: výkup elektřiny, dodávka elektřiny a dodávka plynu." },
+        ] as QuizQuestion[],
+      },
+    },
+  },
+  {
+    id: "zaklady-energetiky",
     icon: "⚡",
-    title: "Dodávka elektřiny",
-    subtitle: "Tarify, produkty, distribuce",
-    total: 8,
+    title: "Základy energetiky",
+    subtitle: "Dodavatel, distributor, fix, spot, FVE",
+    total: 4,
     lessons: [
-      { title: "Jak funguje trh s elektřinou", mins: 6, type: "video" },
-      { title: "FIX vs SPOT – zásadní rozdíl", mins: 8, type: "reading" },
-      { title: "HOME FIX – produkty a ceny", mins: 10, type: "reading" },
-      { title: "EXPERT FIX – produkty pro firmy", mins: 8, type: "reading" },
-      { title: "HOME vs EXPERT – kdy co použít", mins: 5, type: "quiz" },
-      { title: "Distribuční sazby D-sazby", mins: 12, type: "video" },
-      { title: "Distribuční sazby C-sazby", mins: 10, type: "video" },
-      { title: "VT/NT, jistič a typový diagram", mins: 8, type: "quiz" },
+      { title: "Dodavatel vs. distributor", mins: 8, type: "reading" },
+      { title: "Fix a Spot – principy a rozdíly", mins: 7, type: "reading" },
+      { title: "Výkup přebytků z FVE", mins: 7, type: "reading" },
+      { title: "Ověřte znalosti", mins: 10, type: "quiz" },
     ],
     content: {
-      "FIX vs SPOT – zásadní rozdíl": {
-        body: `FIX tarif: cena komodity je pevně daná na celou dobu smlouvy. Zákazník ví přesně, za kolik bude platit. Žádná překvapení z burzovních výkyvů.
+      "Dodavatel vs. distributor": {
+        body: `DODÁVKA ELEKTRICKÉ ENERGIE
 
-SPOT tarif: cena kopíruje hodinové burzové ceny OTE. Může být výhodný při levné elektřině, ale v drahých obdobích může výrazně zdražit.
+Když si zákazník pořizuje elektřinu do domácnosti nebo firmy, vystupují v celém procesu dvě různé role:
 
-Kdy doporučit FIX:
-• Zákazník chce jistotu a předvídatelný účet
-• Zákazník nechce sledovat burzu
-• Domácnost nebo malá firma bez flexibility spotřeby
+DISTRIBUTOR = firma, která vlastní a provozuje elektrickou síť a fyzicky elektřinu dopraví k odběrnému místu.
+DODAVATEL = firma, od které si zákazník elektřinu kupuje – má s ní smlouvu, jí platí zálohy a od ní dostává vyúčtování.
 
-Kdy doporučit SPOT:
-• Zákazník má flexibilní spotřebu (nabíjí auto v noci)
-• Zákazník má domácí FVE nebo baterii
-• Zákazník sleduje ceny a umí optimalizovat spotřebu
+Zjednodušeně: distributor elektřinu doveze, dodavatel ji prodá.
 
-Klíčová formulace: "Na FIXu máte garantovanou cenu po celou dobu smlouvy – nezávisle na tom, co se děje na burze."`,
+KLÍČOVÉ: Distributora si zákazník nevybírá – je určen podle místa, kde se odběrné místo nachází. Dodavatele si zákazník vybrat může.
+
+Cena elektřiny se skládá z více částí:
+• Distribuce a regulované služby (dáno distributorem, nelze ovlivnit)
+• Obchodní část – závisí na zvoleném dodavateli a tarifu
+
+DODÁVKA PLYNU funguje stejným principem:
+• Distributor plyn fyzicky dovede potrubím k zákazníkovi
+• Dodavatel ho prodá – zákazník s ním uzavírá smlouvu a platí zálohy
+• Zákazník si nevybírá distributora (GasNet, Gas Distribution, Pražská plynárenská) – je daný lokalitou
+• Zákazník si vybírá dodavatele
+
+PROČ JE TOTO DŮLEŽITÉ
+Zákazníci si pletou distributora a dodavatele. Pochopení tohoto rozdílu je základ pro smysluplný hovor. Bez tohoto zákazník neví, proč by měl vůbec měnit dodavatele.`,
+      },
+      "Fix a Spot – principy a rozdíly": {
+        body: `FIX TARIF
+Cena za silovou elektřinu je sjednaná dopředu na určité období. Zákazník ví přesně, za kolik bude platit – žádná překvapení z trhů.
+
+Hlavní výhoda fixu: jistota a předvídatelnost.
+
+FIX DOPORUČUJEME zákazníkovi, který:
+• Chce jistotu a předvídatelný účet
+• Nechce sledovat burzu
+• Je domácnost nebo malá firma bez flexibility spotřeby
+
+SPOT TARIF
+Cena elektřiny se odvíjí od trhu. Mění se podle situace na velkoobchodním trhu – nabídky, poptávky, počasí, výroby.
+
+Spot může být výhodný v levných hodinách, ale může i výrazně zdražit při vysoké poptávce nebo výrobním výpadku.
+
+SPOT DOPORUČUJEME zákazníkovi, který:
+• Má flexibilní spotřebu (nabíjí auto v noci, provozuje boiler)
+• Má domácí FVE nebo baterii
+• Sleduje ceny a umí optimalizovat spotřebu
+
+ZÁPORNÉ CENY – důležité vědět
+Záporná cena elektřiny nastane, když je na trhu tolik elektřiny a tak malá spotřeba, že někteří výrobci jsou ochotni za odbyt elektřiny zaplatit. Typicky: hodně vyrábějí obnovitelné zdroje (FVE, vítr) + nízká spotřeba. Pro zákazníka se spotovým výkupem to může znamenat, že za přetoky v tu chvíli nedostane nic nebo musí zaplatit.
+
+SHRNUTÍ: Fix = jistota, Spot = variabilita. Zákazníkovi nabídněte fix jako výchozí doporučení, pokud nezná trh nebo nechce řešit výkyvy.`,
+      },
+      "Výkup přebytků z FVE": {
+        body: `CO JE VÝKUP PŘEBYTKŮ
+Zákazník s fotovoltaickou elektrárnou část vyrobené elektřiny spotřebuje přímo doma a část mu může zbýt – tomu se říká přebytek nebo přetok. Tento přebytek pošle do sítě a obchodník ho může vykoupit.
+
+DŮLEŽITÝ ROZDÍL:
+• Dodávka = zákazník elektřinu NAKUPUJE
+• Výkup = zákazník elektřinu PRODÁVÁ
+
+FIXNÍ VÝKUP
+Výkupní cena sjednaná dopředu. Zákazník ví, za kolik přetoky prodává. Výhoda: přehlednost, jistota, jednoduchost.
+
+SPOTOVÝ VÝKUP
+Výkupní cena se mění podle trhu. Někdy vyšší, někdy nižší. Zákazník musí počítat s kolísáním příjmu.
+
+ZÁPORNÉ CENY A VÝKUP
+Pokud je na trhu nulová nebo záporná cena, zákazník se spotovým výkupem za přetoky nedostane nic (nebo musí platit podle podmínek produktu). To je nejdůležitější věc, kterou zákazník o spotu musí vědět.
+
+Zákazníci si nesprávně myslí: "čím více vyrobím, tím více vydělám". To neplatí vždy. U spotového výkupu záleží na tom, kdy vyrábí – pokud vyrábí ve chvíli, kdy je trh přesycený, cena bude nízká nebo nulová.
+
+SHRNUTÍ
+Electree patří mezi největší výkupce elektřiny v ČR – máme 17 tisíc výrobních míst. Výkup je naše silná stránka. Zákazníkovi s FVE vždy nabídněte výkupní produkt jako součást komplexního řešení.`,
+      },
+      "Ověřte znalosti": {
         quiz: [
-          { q: "Kdy SPOT tarif může výrazně zdražit?", a: ["Nikdy, SPOT je vždy levnější", "Pouze v létě", "Při vysokých burzovních cenách", "Vždy v poledne"], correct: 2, explanation: "SPOT cena kopíruje hodinové ceny OTE. Při energetické krizi nebo vysoké poptávce může výrazně zdražit – to je hlavní riziko SPOTu." },
-          { q: "Co je hlavní výhoda FIX tarifu?", a: ["Vždy nejnižší cena na trhu", "Garantovaná cena po celou dobu smlouvy", "Žádný paušál", "Neomezená flexibilita"], correct: 1, explanation: "FIX zaručuje neměnnou cenu komodity po celou dobu smlouvy – bez ohledu na vývoj cen na burze. Zákazník má jistotu." },
-          { q: "Pro koho je SPOT tarif nejvhodnější?", a: ["Zákazník chce jistotu", "Zákazník s flexibilní spotřebou a FVE nebo baterií", "Zákazník, který nesleduje ceny", "Všechny domácnosti"], correct: 1, explanation: "SPOT je výhodný pro zákazníky, kteří umí přesunout spotřebu do levných hodin nebo mají baterii/FVE." },
-          { q: "Co SPOT tarif sleduje?", a: ["Ceny podle distributora", "Hodinové burzové ceny OTE", "Průměr za poslední rok", "Pevnou sazbu Tramaco"], correct: 1, explanation: "SPOT tarif kopíruje hodinové ceny na burze OTE (Operátor trhu s elektřinou). Cena se mění každou hodinu." },
-          { q: "Zákazník říká: Nechci překvapení v účtu. Co doporučíš?", a: ["SPOT – bývá levnější", "FIX – garantovaná cena", "Počkat na lepší nabídku", "Přejít ke konkurenci"], correct: 1, explanation: "FIX je přesně pro zákazníky, kteří chtějí předvídatelný účet. Klíčová formulace: garantovaná cena nezávisle na burze." },
-          { q: "Zákazník má elektromobil a nabíjí ho v noci. Co doporučíš?", a: ["HOME FIX 12", "HOME FIX 36", "SPOT tarif", "Plyn"], correct: 2, explanation: "SPOT je výhodný pro zákazníky s flexibilní spotřebou. Nabíjení EV v noci v levných hodinách může výrazně snížit náklady." },
-          { q: "Co je nutné mít pro SPOT tarif?", a: ["Pouze EAN kód", "Smart metr AMM", "Souhlas ERÚ", "FVE na střeše"], correct: 1, explanation: "SPOT tarif vyžaduje smart metr AMM (automatické měření) pro měření hodinové spotřeby. Bez AMM nelze SPOT aktivovat." },
-          { q: "Jak se FIX cena mění v průběhu smlouvy?", a: ["Roste každý rok o inflaci", "Kopíruje burzu OTE", "Nemění se – je fixní", "Záleží na distributorovi"], correct: 2, explanation: "FIX cena je garantovaná a neměnná po celou dobu smlouvy. To je definice fixního tarifu." },
-          { q: "Zákazník má FVE a baterii. Jaký tarif zvážit?", a: ["Pouze FIX 12", "Pouze FIX 36", "SPOT pro odběr a Solar FIX pro výkup", "Pouze plyn"], correct: 2, explanation: "Zákazník s FVE a baterií může optimalizovat odběr přes SPOT a prodávat přes Solar FIX produkt." },
-          { q: "Jak popsat FIX zákazníkovi jednou větou?", a: ["Cena závisí na burze", "Garantovaná cena po celou dobu smlouvy – bez ohledu na burzu", "Levnější než SPOT vždy", "Mění se každý měsíc"], correct: 1, explanation: "Klíčová formulace: garantovaná cena nezávisle na burze. Zákazník ví přesně, co bude platit." },
+          { q: "Co dělá distributor elektřiny?", a: ["Prodává elektřinu zákazníkovi a fakturuje ji", "Fyzicky dopravuje elektřinu přes síť k odběrnému místu", "Stanovuje cenu elektřiny na trhu", "Spravuje zákaznické smlouvy"], correct: 1, explanation: "Distributor vlastní a provozuje elektrickou síť – fyzicky elektřinu dopraví. Zákazník si ho nevybírá." },
+          { q: "Může zákazník vybrat svého distributora elektřiny?", a: ["Ano, vždy si vybírá sám", "Ano, ale jen jednou za rok", "Ne – je určen lokalitou odběrného místa", "Ano, pokud má FVE"], correct: 2, explanation: "Distributora si zákazník nevybírá – je daný tím, kde se odběrné místo nachází. Vybírat si může pouze dodavatele." },
+          { q: "Co je hlavní výhoda fixního tarifu?", a: ["Vždy nejnižší cena na trhu", "Jistota – cena se nemění po celou dobu fixace", "Možnost odejít kdykoli bez pokuty", "Žádný měsíční paušál"], correct: 1, explanation: "Fix přináší zákazníkovi jistotu – ví přesně, za kolik bude platit. Není překvapen výkyvy trhu." },
+          { q: "Pro koho je vhodný spotový tarif?", a: ["Pro každého zákazníka", "Pro zákazníka, který chce co největší jistotu", "Pro zákazníka s flexibilní spotřebou nebo FVE/baterií", "Pro zákazníka bez smart metru"], correct: 2, explanation: "Spot dává smysl, když zákazník dokáže přizpůsobit spotřebu levným hodinám – elektromobil, FVE, baterie." },
+          { q: "Kdy nastávají záporné ceny elektřiny?", a: ["Vždy v noci", "Při vysoké výrobě z OZE a nízké spotřebě", "V létě vždy", "Nikdy – cena nemůže být záporná"], correct: 1, explanation: "Záporné ceny nastávají při přebytku elektřiny na trhu – typicky když hodně vyrábějí FVE/větrné a poptávka je nízká." },
+          { q: "Co je přebytek (přetok) z FVE?", a: ["Elektřina, která se nestihne spotřebovat a jde do sítě", "Energie uložená v baterii", "Zpětná dodávka od distributora", "Kompenzace za výpadek dodávky"], correct: 0, explanation: "Přebytek = část vyrobené elektřiny, kterou zákazník nespotřebuje doma – pošle ji do sítě a může ji prodat." },
+          { q: "Jaký je rozdíl mezi dodávkou a výkupem elektřiny?", a: ["Žádný – jde o totéž", "Dodávka = zákazník nakupuje, výkup = zákazník prodává", "Dodávka je pro firmy, výkup pro domácnosti", "Výkup je dražší forma dodávky"], correct: 1, explanation: "Dodávka = zákazník elektřinu kupuje. Výkup = zákazník elektřinu prodává (přetoky z FVE). Jiný směr toku i peněz." },
+          { q: "Co se stane zákazníkovi se spotovým výkupem při záporné ceně?", a: ["Dostane extra bonus", "Výkupní cena může být nulová nebo záporná – nezíská nic nebo musí platit", "Smlouva se automaticky zruší", "Nic – záporné ceny se výkupu netýkají"], correct: 1, explanation: "Záporná cena je riziko spotového výkupu. Zákazník musí vědět, že vysoká výroba neznamená automaticky vysoký výnos." },
+          { q: "Jak funguje dodávka plynu – kdo je distributor?", a: ["Zákazník si ho vybírá sám", "Je daný lokalitou – GasNet (sever/střed), Gas Distribution (jih), Pražská plynárenská (Praha)", "Electree je distributor plynu", "Každý zákazník má jiného distributora dle tarifu"], correct: 1, explanation: "Distributor plynu je dán lokalitou. GasNet: sever/střed ČR. Gas Distribution: jih. Pražská plynárenská: Praha." },
+          { q: "Proč je Electree silná ve výkupu elektřiny?", a: ["Protože je největší dodavatel elektřiny", "Protože má přibližně 17 tisíc výrobních míst a je to naše historická silná stránka", "Protože nabízí nejvyšší výkupní ceny na trhu", "Protože provozuje vlastní fotovoltaické elektrárny"], correct: 1, explanation: "Výkup je kořen Electree – máme ~17 tisíc výrobních míst a dlouhodobou expertízu v práci s FVE." },
         ] as QuizQuestion[],
       },
-      "HOME FIX – produkty a ceny": {
-        body: `Tramaco nabízí tři varianty fixního tarifu pro domácnosti. Ceny jsou platné od 22. 4. 2026.
+    },
+  },
+  {
+    id: "produkty",
+    icon: "📦",
+    title: "Naše hlavní produkty",
+    subtitle: "HOME FIX, SPOT, Solar výkup, Plyn",
+    total: 4,
+    lessons: [
+      { title: "Fixní tarify – HOME FIX", mins: 10, type: "reading" },
+      { title: "Spotové tarify a Solar výkup", mins: 10, type: "reading" },
+      { title: "Dodávka plynu – přehled", mins: 5, type: "reading" },
+      { title: "Ověřte znalosti", mins: 10, type: "quiz" },
+    ],
+    content: {
+      "Fixní tarify – HOME FIX": {
+        body: `FIXNÍ TARIFY ELECTREE – DODÁVKA ELEKTŘINY
 
-HOME FIX 12 — 3 084,29 Kč/MWh s DPH (2 549,00 bez DPH)
+HOME FIX 12 — 2 549 Kč/MWh bez DPH
+• Vázanost: 12 měsíců
+• Cena s DPH: 3 084,29 Kč/MWh
+• Pro koho: zákazník chce kratší závazek, testuje Electree poprvé
+• Výhody: jistota na 1 rok, jednoduchost, možnost odejít po 12 měsících bez sankce
+• Nevýhody: kratší fixace, dražší než delší varianty
+
+HOME FIX 24 — 2 349 Kč/MWh bez DPH ⭐ DOPORUČENÝ
+• Vázanost: 24 měsíců
+• Cena s DPH: 2 842,29 Kč/MWh
+• Pro koho: zákazník chce dobrý poměr ceny a jistoty – nejoblíbenější produkt
+• Výhody: nižší cena než FIX 12, jistota na 2 roky, nejlepší poměr cena/jistota
+• Nevýhody: delší závazek než FIX 12
+
+HOME FIX 36 — 2 299 Kč/MWh bez DPH
+• Vázanost: 36 měsíců
+• Cena s DPH: 2 781,79 Kč/MWh
+• Pro koho: zákazník chce maximální klid a nejnižší cenu na delší dobu
+• Výhody: nejnižší cena z fixních variant, jistota na 3 roky
+• Nevýhody: nejdelší závazek, nejmenší flexibilita
+
+EXPERT FIX 24 — 2 449 Kč/MWh bez DPH
+• Vázanost: 24 měsíců
+• Pro koho: podnikatelé a firmy s C-sazbou distributora
+• Zákazník s D-sazbou → HOME FIX. Zákazník s C-sazbou (IČO) → EXPERT FIX
+
+PAMATUJ: Zákazník nekupuje MWh. Kupuje jistotu, klid a předvídatelný účet.`,
+      },
+      "Spotové tarify a Solar výkup": {
+        body: `SPOTOVÉ TARIFY – DODÁVKA ELEKTŘINY
+
+HOME SPOT — spotová cena OTE + 349 Kč/MWh bez DPH
+• Měsíční poplatek: 99 Kč bez DPH
+• Pro koho: zákazník s FVE nebo flexibilní spotřebou
+• Podmínka: nutný smart metr AMM
+• Pozor: nutnost hlídat trh, riziko výkyvů cen
+
+HOME ELECTREE DRIVE — spotová cena OTE + 319 Kč/MWh bez DPH
+• Měsíční poplatek: 130 Kč bez DPH
+• Určeno PRO MAJITELE ELEKTROMOBILŮ
+• Automatické nabíjení v nejlevnějších hodinách přes Electree Connect
+• Možnost nabíjet při záporných cenách
+• Nižší přirážka než HOME SPOT
+
+VÝKUPNÍ PRODUKTY – SOLAR FIX
+
+Home Solar FIX MINI — 1 000 Kč/MWh | limit: do 1 MWh/rok | paušál: 39 Kč/měs.
+• Podmínka: zákazník musí mít zároveň fixní dodávku u Electree
+
+Home Solar FIX — 500 Kč/MWh | limit: 1–10 MWh/rok | paušál: 59 Kč/měs.
+• Nejpopulárnější – pro standardní střešní FVE na rodinném domě
+
+Home Solar FIX MAXI — 400 Kč/MWh | limit: nad 10 MWh/rok | paušál: 99 Kč/měs.
+• Velké FVE – zemědělské areály, komerční budovy
+
+VÝKUPNÍ PRODUKTY – SOLAR SPOT
+
+Home Solar SPOT FREE — čistá spotová cena bez srážky | limit: do 5 MWh | 199 Kč/měs.
+Home Solar SPOT — spotová cena − 390 Kč/MWh | limit: do 15 MWh | 99 Kč/měs.
+Home Solar SPOT FREE MAXI — čistá spotová cena | limit: nad 5 MWh | 299 Kč/měs.`,
+      },
+      "Dodávka plynu – přehled": {
+        body: `DODÁVKA PLYNU U ELECTREE
+
+Electree nabízí fixní tarify pro dodávku zemního plynu domácnostem. Zákazník plyn odebírá pro svou spotřebu a vybírá si tarif podle délky závazku.
+
+HOME FIX PLYN 12 — 1 349 Kč/MWh bez DPH (1 632,29 Kč s DPH)
 • Vázanost 12 měsíců | Paušál 156,09 Kč/měsíc
-• Nejkratší závazek, vhodné pro zákazníky, kteří chtějí flexibilitu
+• Pro zákazníka, který chce kratší závazek nebo testuje Electree
 
-HOME FIX 24 — 2 842,29 Kč/MWh s DPH (2 349,00 bez DPH) ⭐ Doporučený
+HOME FIX PLYN 24 — 1 299 Kč/MWh bez DPH (1 571,79 Kč s DPH) ⭐
 • Vázanost 24 měsíců | Paušál 180,29 Kč/měsíc
-• Nejlepší poměr cena/jistota. Nejoblíbenější produkt.
+• Doporučený – nejlepší poměr cena/závazek
 
-HOME FIX 36 — 2 781,79 Kč/MWh s DPH (2 299,00 bez DPH)
+HOME FIX PLYN 36 — 1 299 Kč/MWh bez DPH (stejná cena jako 24M!)
 • Vázanost 36 měsíců | Paušál 180,29 Kč/měsíc
-• Nejnižší komodita, ale delší závazek
+• Cena je totožná s FIX 24 – rozdíl je jen v délce závazku
 
-Tip: Zákazník chce jistotu → doporuč FIX 24. Zákazník váhá kvůli závazku → připomeň, že po uplynutí může odejít bez sankce.`,
-        quiz: [
-          { q: "Kolik stojí HOME FIX 24 s DPH?", a: ["2 781,79 Kč/MWh", "3 084,29 Kč/MWh", "2 842,29 Kč/MWh", "2 349,00 Kč/MWh"], correct: 2, explanation: "HOME FIX 24 stojí 2 842,29 Kč/MWh s DPH. Je to doporučený produkt s nejlepším poměrem cena/jistota." },
-          { q: "Jaký je paušál u HOME FIX 12?", a: ["180,29 Kč/měs.", "156,09 Kč/měs.", "129,00 Kč/měs.", "200,00 Kč/měs."], correct: 1, explanation: "HOME FIX 12 má paušál 156,09 Kč/měsíc. HOME FIX 24 a 36 mají shodně 180,29 Kč/měsíc." },
-          { q: "Který produkt má nejnižší cenu komodity?", a: ["HOME FIX 12", "HOME FIX 24", "HOME FIX 36", "Všechny jsou stejné"], correct: 2, explanation: "HOME FIX 36 má cenu 2 781,79 Kč/MWh – nejnižší ze všech tří variant." },
-          { q: "Kolik stojí HOME FIX 12 s DPH?", a: ["2 842,29 Kč/MWh", "2 781,79 Kč/MWh", "3 084,29 Kč/MWh", "3 205,29 Kč/MWh"], correct: 2, explanation: "HOME FIX 12 stojí 3 084,29 Kč/MWh s DPH – nejdražší, ale nejkratší vázanost 12 měsíců." },
-          { q: "Jaká je vázanost HOME FIX 24?", a: ["12 měsíců", "18 měsíců", "24 měsíců", "36 měsíců"], correct: 2, explanation: "HOME FIX 24 má vázanost přesně 24 měsíce. Po uplynutí může zákazník odejít bez sankce." },
-          { q: "Jaký je paušál u HOME FIX 24?", a: ["156,09 Kč/měs.", "180,29 Kč/měs.", "199,00 Kč/měs.", "129,00 Kč/měs."], correct: 1, explanation: "HOME FIX 24 i HOME FIX 36 mají paušál 180,29 Kč/měsíc. Pouze HOME FIX 12 má nižší paušál 156,09 Kč." },
-          { q: "Zákazník chce jistotu bez ohledu na cenu. Co doporučíš?", a: ["HOME FIX 12", "HOME FIX 24", "HOME FIX 36", "SPOT tarif"], correct: 1, explanation: "HOME FIX 24 je doporučený produkt – nejlepší poměr cena/jistota. Závazek 2 roky je přijatelný kompromis." },
-          { q: "Kolik stojí HOME FIX 36 bez DPH?", a: ["2 349,00 Kč/MWh", "2 299,00 Kč/MWh", "2 549,00 Kč/MWh", "2 100,00 Kč/MWh"], correct: 1, explanation: "HOME FIX 36 stojí 2 299,00 Kč/MWh bez DPH (tj. 2 781,79 Kč/MWh s DPH)." },
-          { q: "Co se stane po uplynutí fixace HOME FIX?", a: ["Zákazník musí platit pokutu", "Smlouva prodlouží za stejných podmínek automaticky", "Zákazník může odejít nebo smlouvu obnovit bez sankce", "Zákazník přejde automaticky na SPOT"], correct: 2, explanation: "Po uplynutí fixace může zákazník bez sankce odejít nebo smlouvu prodloužit – důležitý argument při prodeji." },
-          { q: "Který produkt má vázanost 36 měsíců a stejný paušál jako HOME FIX 24?", a: ["HOME FIX 12", "HOME FIX 24", "HOME FIX 36", "EXPERT FIX 24"], correct: 2, explanation: "HOME FIX 36 má vázanost 36 měsíců a paušál 180,29 Kč/měs – stejný jako HOME FIX 24." },
-        ] as QuizQuestion[],
-      },
-    } as Record<string, { body?: string; quiz?: QuizQuestion[] }>,
-  },
-  {
-    id: "fve",
-    icon: "☀️",
-    title: "FVE & Výkup elektřiny",
-    subtitle: "Fotovoltaika, produkty, EAN",
-    total: 6,
-    lessons: [
-      { title: "Co je FVE a jak funguje výkup", mins: 7, type: "video" },
-      { title: "EAN odběratele vs EAN výrobce", mins: 5, type: "reading" },
-      { title: "Home Solar FIX MINI / FIX / FIX MAXI", mins: 8, type: "reading" },
-      { title: "SPOT výkup a Electree Pulse", mins: 10, type: "video" },
-      { title: "Sdílení elektřiny a komunitní energie", mins: 8, type: "reading" },
-      { title: "Checklist uzavření smlouvy výkup", mins: 6, type: "quiz" },
-    ],
-    content: {
-      "Home Solar FIX MINI / FIX / FIX MAXI": {
-        body: `Tramaco nabízí tři varianty fixního výkupního produktu dle roční výroby FVE.
-
-Home Solar FIX MINI — 1 000 Kč/MWh výkup
-• Limit: do 1 MWh/rok | Paušál: 39 Kč/měs.
-• Podmínka: zákazník musí mít zároveň odběr u Tramaco
-
-Home Solar FIX — 500 Kč/MWh výkup ⭐ Nejpopulárnější
-• Limit: do 10 MWh/rok | Paušál: 59 Kč/měs.
-• Ideální pro standardní střešní FVE na rodinném domě
-
-Home Solar FIX MAXI — 400 Kč/MWh výkup
-• Limit: nad 10 MWh/rok | Paušál: 99 Kč/měs.
-• Velká FVE, vysoká výroba (zemědělské areály, komerční budovy)
-
-Pozor: Pokud je výroba menší než paušál, pohledávka se převádí do dalšího měsíce. Zákazník vždy dostane nezápornou fakturu.`,
-        quiz: [
-          { q: "Jaká je výkupní cena Home Solar FIX (standard)?", a: ["1 000 Kč/MWh", "500 Kč/MWh", "400 Kč/MWh", "2 100 Kč/MWh"], correct: 1, explanation: "Home Solar FIX (standard) vykupuje elektřinu za 500 Kč/MWh. Je to nejoblíbenější produkt pro běžné střešní FVE." },
-          { q: "Jaký je limit výroby pro Home Solar FIX MAXI?", a: ["do 1 MWh/rok", "do 5 MWh/rok", "do 10 MWh/rok", "nad 10 MWh/rok"], correct: 3, explanation: "FIX MAXI je pro velké FVE s výrobou nad 10 MWh/rok – zemědělství, průmyslové budovy." },
-          { q: "Jaká je výkupní cena Home Solar FIX MINI?", a: ["400 Kč/MWh", "500 Kč/MWh", "1 000 Kč/MWh", "750 Kč/MWh"], correct: 2, explanation: "FIX MINI vykupuje za 1 000 Kč/MWh – nejvyšší výkupní cena. Je pro malé FVE do 1 MWh/rok." },
-          { q: "Kolik je paušál u Home Solar FIX (standard)?", a: ["39 Kč/měs.", "59 Kč/měs.", "99 Kč/měs.", "79 Kč/měs."], correct: 1, explanation: "Home Solar FIX (standard) má paušál 59 Kč/měsíc. FIX MINI má 39 Kč, FIX MAXI má 99 Kč." },
-          { q: "Jaká je podmínka pro Home Solar FIX MINI?", a: ["FVE musí být nad 5 kWp", "Zákazník musí mít odběr elektřiny u Tramaco", "Zákazník musí mít baterii", "Smlouva na 5 let"], correct: 1, explanation: "FIX MINI podmínkou je, že zákazník musí mít zároveň odběrovou smlouvu na elektřinu u Tramaco." },
-          { q: "Co se stane, když výroba FVE je nižší než paušál?", a: ["Zákazník platí rozdíl hotově", "Pohledávka se převádí do dalšího měsíce", "Smlouva se automaticky ruší", "Zákazník dostane fakturu s mínusem"], correct: 1, explanation: "Pokud výroba nestačí na paušál, pohledávka přechází do dalšího měsíce. Zákazník vždy obdrží nezápornou fakturu." },
-          { q: "Pro koho je Home Solar FIX MAXI určen?", a: ["Zákazníci s malou FVE do 3 kWp", "Standardní rodinný dům", "Velké FVE – zemědělské areály, komerční budovy", "Pouze pro firmy"], correct: 2, explanation: "FIX MAXI je pro velké FVE s výrobou nad 10 MWh/rok – zemědělství, průmysl, komerční areály." },
-          { q: "Jaký je paušál u Home Solar FIX MINI?", a: ["59 Kč/měs.", "99 Kč/měs.", "39 Kč/měs.", "79 Kč/měs."], correct: 2, explanation: "FIX MINI má nejnižší paušál 39 Kč/měsíc, ale nejvyšší výkupní cenu 1 000 Kč/MWh." },
-          { q: "Zákazník má standardní střešní FVE (6 kWp, ~6 MWh/rok). Který produkt doporučíš?", a: ["Home Solar FIX MINI", "Home Solar FIX (standard)", "Home Solar FIX MAXI", "SPOT výkup"], correct: 1, explanation: "6 MWh/rok je pod limitem 10 MWh → FIX (standard) je správná volba." },
-          { q: "Jaký je paušál u Home Solar FIX MAXI?", a: ["39 Kč/měs.", "59 Kč/měs.", "79 Kč/měs.", "99 Kč/měs."], correct: 3, explanation: "FIX MAXI má paušál 99 Kč/měsíc – nejvyšší ze všech tří variant." },
-        ] as QuizQuestion[],
-      },
-      "EAN odběratele vs EAN výrobce": {
-        body: `EAN odběratele (spotřební EAN): identifikuje odběrné místo – kam elektřina přichází do domu. 18místné číslo. Zákazník ho najde na faktuře od distributora.
-
-EAN výrobce (výrobní EAN): identifikuje místo, odkud elektřina odchází do sítě (výrobní FVE). Bez tohoto EAN nelze smlouvu o výkupu aktivovat!
-
-Kde zákazník výrobní EAN najde:
-✅ Dokument PPP (první paralelní připojení)
-✅ Smlouva o připojení (SoP) u nově připojených FVE
-✅ Předchozí vyúčtování od výkupce
-✅ E-mail od distributora (ČEZ, E.ON, PRE)
-
-⚠️ POZOR: V dokumentu UTP (uvedení do trvalého provozu) je VŽDY uveden EAN spotřební, NE výrobní!`,
-        quiz: [
-          { q: "Kde zákazník NESMÍ hledat výrobní EAN?", a: ["Smlouva o připojení (SoP)", "Dokument PPP", "Dokument UTP", "E-mail od distributora"], correct: 2, explanation: "UTP (uvedení do trvalého provozu) obsahuje vždy spotřební EAN, ne výrobní. Je to klasická chyba zákazníků." },
-          { q: "Co identifikuje EAN odběratele?", a: ["Výrobní místo FVE", "Odběrné místo – kam elektřina přichází", "Zákazníkovo rodné číslo", "Typ tarifu"], correct: 1, explanation: "EAN odběratele (spotřební EAN) identifikuje odběrné místo – tj. kam elektřina přichází do objektu." },
-          { q: "Co identifikuje EAN výrobce?", a: ["Odběrné místo", "Zákazníkův účet v EIS", "Výrobní místo – odkud elektřina odchází do sítě", "Typ FVE panelů"], correct: 2, explanation: "EAN výrobce identifikuje výrobní místo – odkud přebytková elektřina z FVE odchází do distribuční sítě." },
-          { q: "Kolik číslic má EAN?", a: ["10 číslic", "13 číslic", "18 číslic", "20 číslic"], correct: 2, explanation: "EAN má 18 číslic – standardní délka identifikátoru odběrného nebo výrobního místa v ČR." },
-          { q: "Co se stane, pokud zákazník nemá výrobní EAN?", a: ["Smlouva jde uzavřít i bez něj", "Nelze aktivovat smlouvu o výkupu", "Postačí spotřební EAN", "Stačí fotografie FVE"], correct: 1, explanation: "Bez výrobního EAN nelze smlouvu o výkupu aktivovat. Je to povinný identifikátor výrobního místa." },
-          { q: "Kde zákazník může najít výrobní EAN?", a: ["Pouze v UTP dokumentu", "Pouze na elektroměru", "V PPP dokumentu nebo SoP nebo předchozím vyúčtování", "V katastru nemovitostí"], correct: 2, explanation: "Výrobní EAN najde zákazník v: PPP dokumentu, SoP, předchozím vyúčtování od výkupce, nebo e-mailu od distributora." },
-          { q: "Co je dokument PPP?", a: ["Plán pro případ poruchy", "První paralelní připojení – dokument při spuštění FVE", "Potvrzení o platbě paušálu", "Přihlášení k produktu Premium"], correct: 1, explanation: "PPP = první paralelní připojení. Dokument vystavený distributorem při prvním připojení FVE do sítě. Obsahuje výrobní EAN." },
-          { q: "Zákazník říká, že našel EAN v UTP dokumentu. Co uděláš?", a: ["Použiješ to číslo", "Upozorníš, že UTP obsahuje spotřební EAN, ne výrobní", "Zavoláš na ERÚ", "Požádáš o rodné číslo"], correct: 1, explanation: "UTP obsahuje vždy spotřební EAN! Zákazník musí hledat výrobní EAN jinde – v PPP, SoP nebo vyúčtování." },
-          { q: "SoP dokument obsahuje výrobní EAN u jakých FVE?", a: ["Všechny FVE", "Pouze velké FVE nad 100 kWp", "Nově připojené FVE", "Pouze solární farmy"], correct: 2, explanation: "SoP (smlouva o připojení) obsahuje výrobní EAN zejména u nově připojených FVE." },
-          { q: "Zákazník nemá PPP ani SoP. Kde ještě hledat výrobní EAN?", a: ["V občanském průkazu", "Předchozí vyúčtování od výkupce nebo e-mail od distributora", "V záručním listu FVE panelů", "Nelze zjistit"], correct: 1, explanation: "Výrobní EAN může být v předchozím vyúčtování od výkupce nebo v e-mailu od distributora (ČEZ, E.ON, PRE)." },
-        ] as QuizQuestion[],
-      },
-    } as Record<string, { body?: string; quiz?: QuizQuestion[] }>,
-  },
-  {
-    id: "plyn",
-    icon: "🔥",
-    title: "Zemní plyn",
-    subtitle: "Distributoři, produkty, pásma",
-    total: 5,
-    lessons: [
-      { title: "Jak funguje trh se zemním plynem", mins: 6, type: "video" },
-      { title: "HOME FIX plyn – produkty a ceny", mins: 8, type: "reading" },
-      { title: "Distribuční pásma a zálohy", mins: 10, type: "reading" },
-      { title: "Sezónnost a výpočet zálohy", mins: 7, type: "video" },
-      { title: "Quiz: Plyn celkový", mins: 12, type: "quiz" },
-    ],
-    content: {
-      "HOME FIX plyn – produkty a ceny": {
-        body: `Tramaco nabízí tři varianty fixního tarifu na zemní plyn pro domácnosti.
-
-HOME FIX plyn 12 — 1 632,29 Kč/MWh s DPH (1 349,00 bez DPH)
-• Vázanost 12 měsíců | Paušál 156,09 Kč/měsíc
-
-HOME FIX plyn 24 — 1 571,79 Kč/MWh s DPH (1 299,00 bez DPH) ⭐ Doporučený
-• Vázanost 24 měsíců | Paušál 180,29 Kč/měsíc
-
-HOME FIX plyn 36 — 1 571,79 Kč/MWh s DPH (1 299,00 bez DPH)
-• Vázanost 36 měsíců – stejná cena jako 24M!
-• Paušál 180,29 Kč/měsíc
-
-Cross-sell tip: Zákazník řeší elektřinu → nabídni i plyn! "Máme výhodné podmínky i na plyn, vše v jedné smlouvě."
-
-Distributoři plynu v ČR:
+DISTRIBUTOŘI PLYNU:
 • GasNet – sever a střed ČR
 • Gas Distribution – jih ČR
-• Pražská plynárenská – Praha`,
+• Pražská plynárenská – Praha
+
+CROSS-SELL TIP
+Zákazník řeší elektřinu → vždy zkus nabídnout i plyn. Formulace: "Máme výhodné podmínky i na plyn – vše v jedné smlouvě, jedna faktura."`,
+      },
+      "Ověřte znalosti": {
         quiz: [
-          { q: "Kolik stojí HOME FIX plyn 24 s DPH?", a: ["1 632,29 Kč/MWh", "1 571,79 Kč/MWh", "1 299,00 Kč/MWh", "1 800,00 Kč/MWh"], correct: 1, explanation: "HOME FIX plyn 24 stojí 1 571,79 Kč/MWh s DPH – doporučený produkt." },
-          { q: "Kolik stojí HOME FIX plyn 12 s DPH?", a: ["1 571,79 Kč/MWh", "1 299,00 Kč/MWh", "1 632,29 Kč/MWh", "1 400,00 Kč/MWh"], correct: 2, explanation: "HOME FIX plyn 12 stojí 1 632,29 Kč/MWh s DPH. Je dražší než 24M a 36M kvůli kratšímu závazku." },
-          { q: "Jak se liší cena HOME FIX plyn 36 oproti 24?", a: ["Je o 100 Kč levnější", "Je o 50 Kč dražší", "Je totožná – 1 571,79 Kč/MWh", "Záleží na distributorovi"], correct: 2, explanation: "HOME FIX plyn 36 má stejnou cenu jako HOME FIX plyn 24. Liší se pouze délkou závazku." },
-          { q: "Který distributor zásobuje plyn v Praze?", a: ["GasNet", "Gas Distribution", "Pražská plynárenská", "E.ON"], correct: 2, explanation: "Pražská plynárenská je distributor zemního plynu v Praze. GasNet pokrývá sever a střed ČR." },
-          { q: "Jaký je paušál u HOME FIX plyn 12?", a: ["180,29 Kč/měs.", "156,09 Kč/měs.", "129,00 Kč/měs.", "200,00 Kč/měs."], correct: 1, explanation: "HOME FIX plyn 12 má paušál 156,09 Kč/měsíc. FIX 24 a FIX 36 mají 180,29 Kč/měsíc." },
-          { q: "Zákazník volá kvůli elektřině. Jak mu nabídneš plyn?", a: ["Nesmíš nabízet plyn při hovoru o elektřině", "Zákazník to odmítne – nekombinuj", "Máme výhodné podmínky i na plyn, vše v jedné smlouvě", "Pouze pokud zákazník sám zeptá"], correct: 2, explanation: "Cross-sell je klíčový! Zákazník ocení pohodlí jedné faktury a výhodné podmínky na plyn." },
-          { q: "Který distributor pokrývá jih ČR?", a: ["GasNet", "Gas Distribution", "Pražská plynárenská", "ČEZ Gas"], correct: 1, explanation: "Gas Distribution zásobuje jih ČR. GasNet pokrývá sever a střed. Pražská plynárenská je pouze Praha." },
-          { q: "Jaký je paušál u HOME FIX plyn 36?", a: ["156,09 Kč/měs.", "129,00 Kč/měs.", "180,29 Kč/měs.", "199,00 Kč/měs."], correct: 2, explanation: "HOME FIX plyn 36 má paušál 180,29 Kč/měsíc – stejný jako HOME FIX plyn 24." },
-          { q: "Zákazník chce plyn, ale bojí se závazku. Co nabídneš?", a: ["HOME FIX plyn 36 – nejlevnější", "HOME FIX plyn 12 – nejkratší závazek", "HOME FIX plyn 24 – nejlepší poměr", "SPOT plyn"], correct: 1, explanation: "HOME FIX plyn 12 má nejkratší závazek (12 měsíců). Pro zákazníka váhajícího kvůli závazku je to správná volba." },
-          { q: "GasNet distribuuje plyn v jaké oblasti?", a: ["Pouze Praha", "Jih ČR", "Sever a střed ČR", "Celá ČR"], correct: 2, explanation: "GasNet pokrývá sever a střed ČR – je to největší distributor zemního plynu." },
+          { q: "Jaká je cena HOME FIX 24 bez DPH?", a: ["2 299 Kč/MWh", "2 549 Kč/MWh", "2 349 Kč/MWh", "2 449 Kč/MWh"], correct: 2, explanation: "HOME FIX 24 stojí 2 349 Kč/MWh bez DPH (2 842,29 Kč s DPH). Je to doporučený produkt." },
+          { q: "Který HOME FIX tarif je nejdražší z hlediska ceny komodity?", a: ["HOME FIX 24", "HOME FIX 36", "HOME FIX 12", "EXPERT FIX 24"], correct: 2, explanation: "HOME FIX 12 je nejdražší (2 549 Kč/MWh bez DPH), protože zákazník platí za nejkratší závazek." },
+          { q: "Pro koho je určen EXPERT FIX 24?", a: ["Domácnosti s vysokou spotřebou", "Zákazníci s D-sazbou distributora", "Podnikatelé a firmy s C-sazbou distributora", "Majitelé elektromobilů"], correct: 2, explanation: "EXPERT FIX je pro podnikatele a firmy s C-sazbou distributora (IČO). D-sazba = HOME FIX." },
+          { q: "Pro koho je HOME ELECTREE DRIVE?", a: ["Zákazníci s fotovoltaikou", "Majitelé elektromobilů – chytré nabíjení v levných hodinách", "Firmy s vysokou spotřebou", "Zákazníci v Praze"], correct: 1, explanation: "Electree Drive je speciálně pro majitele elektromobilů. Automaticky nabíjí v nejlevnějších hodinách přes Electree Connect." },
+          { q: "Jaká je výkupní cena Home Solar FIX (standard)?", a: ["1 000 Kč/MWh", "400 Kč/MWh", "500 Kč/MWh", "750 Kč/MWh"], correct: 2, explanation: "Home Solar FIX (standard) vykupuje za 500 Kč/MWh. Je nejoblíbenější pro standardní střešní FVE." },
+          { q: "Pro jaký rozsah přetoků je Home Solar FIX (standard)?", a: ["Do 1 MWh/rok", "1–10 MWh/rok", "Nad 10 MWh/rok", "Do 5 MWh/rok"], correct: 1, explanation: "Home Solar FIX pokrývá přetoky 1–10 MWh/rok – ideální pro standardní rodinný dům s FVE." },
+          { q: "Co je podmínkou pro Home Solar FIX MINI?", a: ["Zákazník musí mít baterii", "Zákazník musí mít zároveň fixní dodávku elektřiny u Electree", "FVE musí být větší než 5 kWp", "Zákazník musí mít smart metr"], correct: 1, explanation: "FIX MINI vyžaduje, aby zákazník měl zároveň fixní odběrovou smlouvu na elektřinu u Electree." },
+          { q: "Jaká je cena HOME FIX PLYN 24 bez DPH?", a: ["1 349 Kč/MWh", "1 299 Kč/MWh", "1 571 Kč/MWh", "1 200 Kč/MWh"], correct: 1, explanation: "HOME FIX PLYN 24 stojí 1 299 Kč/MWh bez DPH (1 571,79 Kč s DPH). Je to doporučený produkt pro plyn." },
+          { q: "Jak se liší cena HOME FIX PLYN 36 oproti HOME FIX PLYN 24?", a: ["Je o 100 Kč levnější", "Je o 50 Kč dražší", "Je totožná – liší se jen délkou závazku", "Záleží na distributorovi"], correct: 2, explanation: "HOME FIX PLYN 36 má stejnou cenu komodity jako FIX 24. Rozdíl je pouze v délce závazku (36 vs. 24 měsíců)." },
+          { q: "Jak začít cross-sell na plyn po uzavření elektřiny?", a: ["Neprodávej dvě věci najednou – nikdy", "Až na dalším hovoru", "Pojďme se podívat i na plyn – máme výhodné podmínky, vše v jedné smlouvě", "Pouze pokud zákazník sám zeptá"], correct: 2, explanation: "Cross-sell přichází po uzavření hlavního tématu. Formulace: výhodné podmínky, jedna smlouva, jedna faktura." },
         ] as QuizQuestion[],
       },
-    } as Record<string, { body?: string; quiz?: QuizQuestion[] }>,
+    },
   },
   {
-    id: "retence",
-    icon: "🛡️",
-    title: "Retence & komunikace",
-    subtitle: "Callscripty, námitky, techniky",
-    total: 7,
+    id: "prodejni-hovor",
+    icon: "📞",
+    title: "Základní prodejní hovor",
+    subtitle: "Struktura, výpočet úspory, argumentace",
+    total: 3,
     lessons: [
-      { title: "Úvod do retenčního hovoru", mins: 5, type: "video" },
-      { title: "Otevření hovoru a zjištění důvodu", mins: 8, type: "reading" },
-      { title: "Reakce na různé důvody odchodu", mins: 12, type: "reading" },
-      { title: "Překonání námitek po nabídce", mins: 10, type: "reading" },
-      { title: "Zákazník podepsal jinde – co dělat", mins: 6, type: "reading" },
-      { title: "Nabídka a závěr hovoru", mins: 8, type: "video" },
-      { title: "Quiz: Retence celkový", mins: 15, type: "quiz" },
+      { title: "Struktura hovoru od A do Z", mins: 10, type: "reading" },
+      { title: "Výpočet úspory a argumentace", mins: 8, type: "reading" },
+      { title: "Ověřte znalosti", mins: 8, type: "quiz" },
     ],
     content: {
-      "Reakce na různé důvody odchodu": {
-        body: `Každý zákazník odchází z jiného důvodu. Nejprve ho nechte mluvit – čím víc řekne sám, tím lépe víte, co nabídnout.
+      "Struktura hovoru od A do Z": {
+        body: `ZÁKLADNÍ PRODEJNÍ HOVOR – STRUKTURA
 
-CENA / chce ušetřit:
-"Rozumím, cena je samozřejmě důležitá. Mohu se zeptat, jakou nabídku jste dostal/a?" → Pokud řekne číslo: porovnejte s vaší nabídkou.
+Cílem hovoru je rychle spočítat orientační úsporu, vytvořit u zákazníka pocit, že dnes zbytečně přeplácí, a dostat ho do fáze nabídka nebo podpis.
 
-NESPOKOJENOST se službami:
-"To mě mrzí a beru to vážně. Mohu se zeptat, co konkrétně se stalo?" → Nabídněte nápravu, pak teprve přejděte na cenu.
+Z leadu máme (VĚTŠINOU) 4 klíčové údaje: stávající dodavatel, cena za MWh, výše měsíčních záloh, roční spotřeba.
 
-CHCE ODEJÍT K JINÉ FIRMĚ:
-"Chápu. Mohu se zeptat, co vás u té druhé nabídky zaujalo nejvíc?" → Odpověď vám přesně řekne, co musíte nabídnout.
+1. OTEVŘENÍ HOVORU
+Hovor musí začít rychle, lidsky a jasně. Zákazník má okamžitě vědět, kdo volá, proč volá a že hovor nebude dlouhý.
 
-ZÁKAZNÍK UŽ PODEPSAL JINDE:
-• Do 14 dnů od podpisu → může od nové smlouvy odstoupit
-• Do 15 dnů od zahájení dodávky → stále možné odstoupení
-• Dodávka ještě nezačala → možnost zpětvzetí výpovědi u nás`,
+Formulace: "Dobrý den, paní Nováková? Tady Petra z Electree. Volám vám, protože jste si u nás žádala o cenovou nabídku na elektřinu. Hodí se vám teď chvilka? Zabere to maximálně 10 minut."
+
+2. OZNÁMENÍ NAHRÁVÁNÍ
+"Pro pořádek vás chci informovat, že je hovor z důvodu kvality nahráván. Souhlasíte? Děkuji."
+
+Nezdržuj se – jakmile zákazník souhlasí, okamžitě navazuj.
+
+3. POTVRZENÍ DAT
+"V dotazníku jste uvedla, že máte teď cenu přibližně X Kč za MWh, zálohy Y Kč měsíčně a roční spotřebu Z MWh. Sedí to?"
+
+Nikdy neslibuješ konkrétní úsporu bez všech 4 vstupních dat.
+
+4. VÝPOČET ÚSPORY A ARGUMENTACE
+Nestačí říct částku. Zákazník musí pochopit, co pro něj úspora znamená v životě.
+
+Formulace: "Ročně byste u nás s tarifem HOME FIX 24 ušetřila přibližně 3 800 Kč. K tomu vám klesnou měsíční zálohy o cca 320 Kč – každý měsíc vám zůstane víc peněz. A navíc máte na 2 roky jistotu, že se cena nezmění."
+
+CO ZÁKAZNÍK OPRAVDU KUPUJE
+Zákazník nekupuje MWh. Kupuje:
+• Úsporu (konkrétní číslo v Kč)
+• Jistotu (cena se nezmění)
+• Klid (nemusí řešit trh)
+• Jednoduché řešení (všechno zařídíme za něj)`,
+      },
+      "Výpočet úspory a argumentace": {
+        body: `JAK SPOČÍTAT ÚSPORU
+
+Vstupní data z leadu:
+• Stávající cena zákazníka za MWh (bez DPH)
+• Roční spotřeba v MWh
+• Měsíční zálohy
+
+Orientační výpočet komoditní úspory za rok:
+(Stávající cena/MWh − Naše cena/MWh) × roční spotřeba = roční úspora na komoditě
+
+Příklad:
+Zákazník platí 3 200 Kč/MWh, roční spotřeba 10 MWh.
+My nabídneme HOME FIX 24 za 2 349 Kč/MWh.
+Úspora: (3 200 − 2 349) × 10 = 8 510 Kč/rok
+
+EMOCIONÁLNÍ ARGUMENTACE
+Nestačí říct "ušetříte 8 510 Kč". Přelož to do života:
+• "To jsou zálohy přibližně o 700 Kč měsíčně nižší."
+• "To jsou víkendové výlety navíc každý rok."
+• "To je jistota, že vám cena nepůjde nahoru."
+
+CO NESMÍŠ SLÍBIT:
+• Slevy nebo změny cen, které nejsou v platném ceníku
+• Konkrétní úsporu bez všech 4 vstupních dat
+• Že fix bude vždy nejlevnější řešení
+• Cokoliv, co není kryto obchodními podmínkami
+
+KLÍČOVÁ ZÁSADA
+Operátorka musí působit jistě, stručně a srozumitelně. Zákazník nekupuje tabulku, ale lepší rozhodnutí.`,
+      },
+      "Ověřte znalosti": {
         quiz: [
-          { q: "Co uděláš jako první při retenčním hovoru?", a: ["Rovnou nabídneš lepší cenu", "Nechte zákazníka mluvit a nepřerušuj ho", "Sdělíš výpovědní lhůtu", "Zeptáš se na e-mail"], correct: 1, explanation: "Zákazník nejlépe poradí, co potřebujete nabídnout. Čím víc řekne sám, tím přesnější nabídku mu dáte." },
-          { q: "Zákazník říká, že dostal levnější nabídku. Co uděláš?", a: ["Okamžitě nabídneš slevu", "Zeptáš se, o kolik levnější – pak porovnáš s vaší nabídkou", "Řekneš, že konkurence je nespolehlivá", "Skončíš hovor"], correct: 1, explanation: "Nejprve zjistěte konkrétní číslo. Pak teprve porovnejte s vaší kalkulací." },
-          { q: "Do kolika dní od podpisu může zákazník odstoupit od nové smlouvy?", a: ["7 dní", "14 dní", "30 dní", "60 dní"], correct: 1, explanation: "Zákon dává zákazníkovi 14 dní na odstoupení od smlouvy uzavřené na dálku (telefon, e-mail)." },
-          { q: "Zákazník je nespokojený se službami. Co uděláš nejdříve?", a: ["Nabídneš okamžitě nižší cenu", "Zeptáš se, co konkrétně se stalo, a nabídneš nápravu", "Řekneš, že za to nemůžete", "Přepojíš na reklamace"], correct: 1, explanation: "Zákazník potřebuje cítit, že ho berete vážně. Nejprve zjistěte problém a nabídněte nápravu." },
-          { q: "Zákazník chce odejít ke konkurenci. Co se zeptáš?", a: ["Proč nás opouštíte?", "Co vás u té druhé nabídky zaujalo nejvíc – cena nebo něco jiného?", "Kdy to podepíšete?", "Znáte tu firmu?"], correct: 1, explanation: "Tato otázka přesně odhalí, co zákazník potřebuje. Jde-li o cenu – porovnáte. Jde-li o něco jiného – řešíte to." },
-          { q: "Zákazník podepsal smlouvu s konkurencí před 10 dny. Může ji zrušit?", a: ["Ne, smlouva je závazná", "Ano, má ještě 4 dny na odstoupení", "Pouze pokud požádá ERÚ", "Záleží na dodavateli"], correct: 1, explanation: "14denní lhůta ještě plyne (10 < 14 dní). Zákazník může od nové smlouvy odstoupit – klíčový argument." },
-          { q: "Zákazník říká: Přecházím, protože jste drazí. Co neříkáš?", a: ["Rozumím, podívám se, co pro vás dokážu udělat", "Mohu se zeptat, jakou nabídku jste dostal/a?", "Tak to je vaše volba, to respektujeme", "Naše cena je 2 842,29 Kč/MWh – kde máte levněji?"], correct: 2, explanation: "Vzdát se bez boje je špatná praxe. Vždy se ptejte na konkrétní nabídku a porovnejte." },
-          { q: "Co nabídneš zákazníkovi nespokojenci po vyřešení problému?", a: ["Nic navíc – problém byl vyřešen", "Poděkuješ a zavěsíš", "Po nápravě přejdeš na cenovou nabídku pro udržení", "Přepojíš na obchodní tým"], correct: 2, explanation: "Sekvence: empatie → zjistit problém → napravit → pak nabídnout lepší cenu. Zákazník, jehož problém byl vyřešen, je otevřenější." },
-          { q: "Co znamená zpětvzetí výpovědi?", a: ["Zákazník požádá o novou smlouvu", "Zákazník odvolá výpověď podanou u Tramaco, dodávka pokračuje", "Zákazník odstoupí od smlouvy s konkurencí", "Zákazník zaplatí pokutu"], correct: 1, explanation: "Zpětvzetí výpovědi = zákazník stáhne výpověď podanou u nás. Dodávka pokračuje bez přerušení." },
-          { q: "Zákazník říká: Chci přejít, protože je to levnější. Jak začneš?", a: ["Rovnou nabídneš slevu 10 %", "Zeptáš se: Mohu se zeptat, o kolik levnější?", "Popřeješ mu hodně štěstí", "Přepojíš na vedoucího"], correct: 1, explanation: "Zákazníci tyto nabídky přehání nebo si nejsou jistí čísly. Vždy zjistěte konkrétní částku – pak argumentujte fakty." },
+          { q: "Jaké jsou 4 klíčové údaje z leadu, se kterými pracujeme?", a: ["Jméno, telefon, e-mail, adresa", "Dodavatel, cena MWh, měsíční zálohy, roční spotřeba", "Dodavatel, typ tarifu, jistič, sazba", "Spotřeba, sazba, EAN, IČO"], correct: 1, explanation: "Z leadu potřebujeme: stávající dodavatel, cena za MWh, výše zálohy, roční spotřeba – z toho spočítáme úsporu." },
+          { q: "Co zákazník opravdu kupuje (ne elektřinu)?", a: ["Nejnižší cenu na trhu", "Jistotu, klid, úsporu a jednoduché řešení", "Smlouvu na 24 měsíců", "Technické parametry tarifu"], correct: 1, explanation: "Zákazník nekupuje MWh – kupuje jistotu, klid, úsporu v Kč a jednoduché vyřízení bez starostí." },
+          { q: "Jak správně zahájit hovor?", a: ["Okamžitě nabídnout úsporu bez představení", "Rychle, lidsky a jasně – kdo volá, proč a jak dlouho to zabere", "Zeptat se na EAN číslo", "Přečíst smluvní podmínky"], correct: 1, explanation: "Otevření má být rychlé, lidské, jasné. Zákazník musí hned vědět kdo volá, proč a že to nebude trvat dlouho." },
+          { q: "Co musí operátorka oznámit hned na začátku hovoru?", a: ["Přesnou cenu produktu", "Délku smlouvy a sankce", "Nahrávání hovoru z důvodu kvality", "Jméno a příjmení zákazníka"], correct: 2, explanation: "Nahrávání je nutné oznámit a získat souhlas na začátku. Po souhlasu okamžitě navazujeme na důvod hovoru." },
+          { q: "Kdy smíš slíbit konkrétní úsporu zákazníkovi?", a: ["Vždy, bez ohledu na dostupná data", "Pouze pokud má zákazník více než 10 MWh roční spotřebu", "Pouze pokud máš všechna 4 vstupní data z leadu", "Nikdy – úspory se nesmí slibovat"], correct: 2, explanation: "Konkrétní úsporu lze slíbit pouze pokud máme všechna 4 data. Bez nich hovoříme pouze orientačně." },
+          { q: "Jak spočítáme orientační roční komoditní úsporu?", a: ["(Naše cena − zákazníkova cena) × spotřeba", "(Zákazníkova cena − naše cena) × roční spotřeba v MWh", "Zákazníkovy zálohy − naše zálohy × 12", "Zákazníkova spotřeba × naše paušál"], correct: 1, explanation: "Správný vzorec: (zákazníkova cena/MWh − naše cena/MWh) × roční spotřeba. Výsledek je roční úspora na komoditě." },
+          { q: "Jak správně přeložit úsporu pro zákazníka?", a: ["Říci jen číslo v Kč ročně", "Přeložit do každodenního přínosu: nižší zálohy, méně starostí, konkrétní částky", "Ukázat tabulku s cenami", "Porovnat s cenami konkurence"], correct: 1, explanation: "Nestačí říct číslo. Zákazník musí pochopit dopad: nižší zálohy každý měsíc, jistota na 2 roky, méně starostí." },
+          { q: "Co nesmíš zákazníkovi nikdy slíbit?", a: ["Datum zahájení dodávky", "Jméno kontaktní osoby", "Slevy nebo změny cen, které nejsou v ceníku", "Výši zálohy"], correct: 2, explanation: "Operátorka nesmí slíbit: slevy mimo ceník, úsporu bez dat, že fix je vždy nejlevnější, nic bez krytí podmínkami." },
+          { q: "Co je cílem otevření hovoru?", a: ["Uzavřít smlouvu ihned v první větě", "Zákazníka uklidnit, zaujmout a otevřít prostor pro dialog", "Přečíst zákazníkovi všechny produkty", "Zjistit EAN číslo odběrného místa"], correct: 1, explanation: "První věty mají zákazníka uklidnit a otevřít prostor. Ne prodávat – nejdřív musíme pochopit jeho situaci." },
+          { q: "Jak dlouhý má být hovor dle otevírací formulace?", a: ["30 minut", "Maximálně 10 minut", "1 hodina", "Záleží na zákazníkovi, hovor nekončíme"], correct: 1, explanation: "Při otevření řekneme: 'Zabere to maximálně 10 minut.' Zákazník ví, že to nebude zdlouhavé." },
         ] as QuizQuestion[],
       },
-    } as Record<string, { body?: string; quiz?: QuizQuestion[] }>,
+    },
   },
   {
-    id: "systemy",
-    icon: "💻",
-    title: "Systémy & CRM (EIS)",
-    subtitle: "Postupy v systému, formuláře",
-    total: 6,
+    id: "namitky",
+    icon: "🛡️",
+    title: "Základní námitky",
+    subtitle: "Klidná reakce, argumentace, návrat k řešení",
+    total: 3,
     lessons: [
-      { title: "Úvod do EIS – orientace v systému", mins: 10, type: "video" },
-      { title: "Založení zákazníka krok za krokem", mins: 12, type: "reading" },
-      { title: "Smlouva na dodávku elektřiny v EIS", mins: 15, type: "reading" },
-      { title: "Smlouva na výkup elektřiny v EIS", mins: 12, type: "reading" },
-      { title: "Přepis výrobny – postup", mins: 8, type: "reading" },
-      { title: "Změna ceníku – postup", mins: 6, type: "reading" },
+      { title: "Námitky 1–5 a jak na ně", mins: 10, type: "reading" },
+      { title: "Námitky 6–10 a compliance", mins: 10, type: "reading" },
+      { title: "Ověřte znalosti", mins: 10, type: "quiz" },
     ],
-    content: {} as Record<string, { body?: string; quiz?: QuizQuestion[] }>,
+    content: {
+      "Námitky 1–5 a jak na ně": {
+        body: `NÁMITKA 1 – Musím si to rozmyslet
+Reakce: "Rozumím. A co konkrétně si nejste jistá? Úsporu jsme spočítali, ceny vám potvrdím e-mailem a výpověď u stávajícího dodavatele zařídíme my. Co vám ještě chybí k rozhodnutí?"
+Proč: Tato věta je často jen obranná reakce. Zjisti skutečný důvod nejistoty.
+
+NÁMITKA 2 – Mám smlouvu u jiného dodavatele
+Reakce: "To není problém. Výpověď za vás zajistíme my na základě plné moci. Vy se o nic nemusíte starat, stačí jen podepsat."
+Proč: Zákazník nesmí mít pocit, že ho čeká složité papírování. Přechod je jednoduchý a vyřešený za něj.
+
+NÁMITKA 3 – Nemám teď čas
+Reakce: "Chápu. Kdy se vám hodí, abych zavolala zpátky? Zabere to jen pár minut a potom už jen podepíšete nabídku."
+Proč: Nepusť zákazníka bez dalšího kroku. Domluv konkrétní termín zpětného volání.
+
+NÁMITKA 4 – Nejste příliš drazí?
+Reakce: "Naopak, z výpočtu vyšlo, že oproti tomu, co platíte teď, ušetříte přibližně X Kč ročně. A navíc máte cenu zafixovanou."
+Proč: Nevracej se do obecné debaty o trhu. Vrať zákazníka ke konkrétním číslům.
+
+NÁMITKA 5 – Slyšela jsem o vás něco špatného
+Reakce: "Děkuji za upřímnost. Část podobných reakcí bývá od zákazníků, pro které byl přechod náročný. U vás ale vše poběží přesně podle nabídky, kterou jsme společně spočítali a kterou vám pošlu i e-mailem."
+Proč: Nikdy neshoď zákazníka ani mu neříkej, že se mýlí. Uznej obavu, pak vrať hovor k faktům.`,
+      },
+      "Námitky 6–10 a compliance": {
+        body: `NÁMITKA 6 – Když se ceny sníží, budu mít fix zbytečně drahý
+Reakce: "To je fér úvaha. Fix ale není o tom, že musí být v každém momentu nejnižší. Je o jistotě, že vás nepřekvapí růst ceny a dopředu víte, s čím počítat."
+Proč: Nevysvětluj fix jako univerzálně nejlevnější – vysvětluj ho jako jistotu a ochranu před výkyvy.
+
+NÁMITKA 7 – Chci nejdřív porovnat více nabídek
+Reakce: "To je rozumné. Právě proto vám chci dát co nejkonkrétnější podklad. Pošlu vám nabídku pro vaši domácnost, kterou budete moct férově porovnat s ostatními."
+Proč: Nevystupuj proti srovnávání – buď tím, kdo dá nejkonkrétnější a nejčitelnější materiál.
+
+NÁMITKA 8 – Mám to doma na partnerovi
+Reakce: "Rozumím. Dává smysl, abyste měli oba stejné informace. Pošlu vám vše přehledně e-mailem a případně se domluvme, kdy se vám ozvu znovu, až to proberete."
+Proč: Cílem je dostat hovor do konkrétního dalšího kroku, ne tlačit na rozhodnutí bez druhé osoby.
+
+NÁMITKA 9 – Jednou jsem měnila dodavatele a bylo to hrozné
+Reakce: "Chápu, po špatné zkušenosti je člověk opatrný. Právě proto vám chci vše popsat jednoduše – přesně co se bude dít, kdy to proběhne a co za vás zařídíme my."
+Proč: Nezpochybňuj minulou zkušenost. Ukažte, že tentokrát bude zákazník vědět vše předem.
+
+NÁMITKA 10 – Bojím se, že zůstanu bez elektřiny
+Reakce: "Toho se bát nemusíte. Přechod probíhá administrativně a po celou dobu zůstáváte připojena. Mění se jen firma na faktuře."
+Proč: Toto je silná emoční obava. Nejprve zákazníka uklidni, teprve pak pokračuj dál.
+
+CO OPERÁTORKA NESMÍ NIKDY SLÍBIT
+• Slevy nebo změny cen, které nejsou v platném ceníku
+• Konkrétní úsporu bez všech 4 vstupních dat
+• Že fix bude vždy nejlevnější řešení
+• Jakýkoli slib, který není krytý obchodními podmínkami`,
+      },
+      "Ověřte znalosti": {
+        quiz: [
+          { q: "Jak reagovat na námitku 'Musím si to rozmyslet'?", a: ["Souhlasit a ukončit hovor", "Zjistit konkrétní důvod nejistoty a nabídnout řešení", "Opakovat úsporu dokud zákazník nesouhlasí", "Říct, že nabídka platí jen dnes"], correct: 1, explanation: "'Musím si to rozmyslet' je často obranná reakce. Zjistěte skutečný důvod – ptejte se: 'Co vám konkrétně chybí k rozhodnutí?'" },
+          { q: "Jak reagovat na 'Mám smlouvu u jiného dodavatele'?", a: ["Říct, že nemůžeme pomoci dokud smlouva neskončí", "Vysvětlit, že výpověď za zákazníka zařídíme my na základě plné moci", "Přejít na jiný produkt", "Počkat, až smlouva vyprší"], correct: 1, explanation: "Zákazník se nemusí bát papírování. Výpověď u stávajícího dodavatele za něj zařídíme my na základě plné moci." },
+          { q: "Zákazník říká 'Nemám teď čas'. Co uděláš?", a: ["Rychle dokončit celý hovor v 1 minutě", "Domluvit konkrétní termín zpětného volání", "Říct, ať zavolá sám až bude mít čas", "Ukončit hovor a přejít na dalšího zákazníka"], correct: 1, explanation: "Nikdy nepusť zákazníka bez konkrétního dalšího kroku. Domluv přesný čas zpětného volání." },
+          { q: "Zákazník říká 'Nejste příliš drazí?'. Co odpovíš?", a: ["Přiznat, že možná máme vyšší ceny", "Vrátit zákazníka ke konkrétní spočítané úspoře v jeho situaci", "Zahájit debatu o vývoji cen na trhu", "Nabídnout extra slevu"], correct: 1, explanation: "Nevracej se do abstraktní diskuse o trhu. Vrať zákazníka ke konkrétním číslům a úspoře, kterou jsi spočítal/a." },
+          { q: "Zákazník říká 'Slyšela jsem o vás něco špatného'. Co neuděláš?", a: ["Poděkovat za upřímnost", "Říct zákazníkovi, že se mýlí a ta negativní info je lež", "Uznat obavu a vrátit hovor k faktům a konkrétní nabídce", "Vysvětlit, co zákazník ve svém případě může očekávat"], correct: 1, explanation: "Nikdy neshazuj zákazníka nebo neříkej, že se mýlí. Uznej obavu, vrať se k faktům a k jistotě procesu." },
+          { q: "Jak správně vysvětlit zákazníkovi, proč je fix dobrá volba i když ceny mohou klesnout?", a: ["Slíbit, že fix bude vždy nejlevnější na trhu", "Říct, že ceny stejně půjdou nahoru", "Vysvětlit, že fix přináší jistotu a ochranu před výkyvy – ne nutně absolutní minimum", "Nabídnout jiný produkt"], correct: 2, explanation: "Fix není o absolutně nejnižší ceně. Je o jistotě a předvídatelnosti. To je jeho hodnota, ne garancia nejlevnější ceny." },
+          { q: "Zákazník chce porovnat více nabídek. Jak reaguješ?", a: ["Odradit ho od porovnávání", "Říct, že ostatní nabídky jsou horší bez konkrétních dat", "Přijmout to a poskytnout nejkonkrétnější podklad pro srovnání", "Přejít okamžitě na jiný produkt"], correct: 2, explanation: "Přijmi srovnávání jako logický krok. Cíl: být tím, kdo dá nejkonkrétnější a nejčitelnější nabídku pro zákazníkovu situaci." },
+          { q: "Zákazník říká 'Mám to doma na manželu'. Co je cílem reakce?", a: ["Přesvědčit zákazníka, aby rozhodl sám/a bez partnera", "Dostat hovor do konkrétního dalšího kroku – poslat info + domluvit termín", "Zavolat přímo na manžela/manželku", "Ukončit hovor – bez partnera nelze smlouvu uzavřít"], correct: 1, explanation: "Cíl není tlačit na rozhodnutí bez partnera, ale zajistit konkrétní další krok: e-mail + domluvený termín dalšího hovoru." },
+          { q: "Zákazník se bojí, že zůstane bez elektřiny při přechodu. Co řekneš JAKO PRVNÍ?", a: ["Vysvětlit celý technický proces přechodu", "Nejprve zákazníka uklidnit – přechod je administrativní, dodávka běží nepřetržitě", "Říct, že se to stát nemůže a jít dál", "Přejít na jiné téma"], correct: 1, explanation: "Nejprve uklidni – toto je silná emoční obava. Teprve po uklidnění vysvětluj, jak přechod funguje." },
+          { q: "Co nesmíš zákazníkovi nikdy slíbit?", a: ["Datum zpětného volání", "Výši orientační úspory při dostupných datech", "Slevy nebo změny cen, které nejsou v platném ceníku", "Dobu trvání hovoru"], correct: 2, explanation: "Compliance: nikdy neslibuj slevy mimo ceník, úsporu bez dat, že fix je vždy nejlevnější, ani nic bez krytí podmínkami." },
+        ] as QuizQuestion[],
+      },
+    },
+  },
+  {
+    id: "uzavreni",
+    icon: "✅",
+    title: "Uzavření hovoru a zápis",
+    subtitle: "CTA, plná moc, cross-sell, co zapsat",
+    total: 3,
+    lessons: [
+      { title: "Call to action a závěr hovoru", mins: 8, type: "reading" },
+      { title: "Zápis a cross-sell", mins: 6, type: "reading" },
+      { title: "Ověřte znalosti", mins: 8, type: "quiz" },
+    ],
+    content: {
+      "Call to action a závěr hovoru": {
+        body: `UZAVŘENÍ HOVORU
+
+Po výpočtu úspory a zpracování námitek musí operátorka jasně vést zákazníka k dalšímu kroku. Nesmí čekat, až zákazník sám navrhne pokračování.
+
+SPRÁVNÉ UZAVŘENÍ = říci, co se stane teď, co udělá operátorka a co udělá zákazník.
+
+CALL TO ACTION – FORMULACE
+Po výpočtu a vyřešení námitek musí zaznít jasná výzva:
+
+"Co říkáte, pojďme to zafixovat? Pošlu vám nabídku ke kontrole na e-mail, vy se podíváte a hned ji podepíšete online. Celé to zabere jen pár minut."
+
+Nebo: "Vyplatí se vám to. Připravím vám to rovnou teď, ať to máte hned z krku."
+
+Závěr nesmí být pasivní. Ty vedeš další krok.
+
+UZAVŘENÍ SMLOUVY A PLNÁ MOC
+Jakmile zákazník souhlasí:
+1. Okamžitě pošli nabídku a plnou moc
+2. Vysvětli, že Electree za zákazníka vyřídí výpověď u stávajícího dodavatele
+3. Ujisti zákazníka, že po celou dobu zůstane připojen – mění se pouze firma na faktuře
+
+Formulace: "Super. Pošlu vám nabídku na e-mail. Spolu s ní přijde i plná moc, díky které za vás vyřídíme výpověď u stávajícího dodavatele. Vy pouze podepíšete a my se postaráme o zbytek."
+
+CO SE DĚJE PO HOVORU
+Po podpisu zákazník obdrží nabídku a plnou moc online. Electree podá výpověď u stávajícího dodavatele, zajistí přepis odběrného místa a zákazník je informován o datu zahájení dodávky.`,
+      },
+      "Zápis a cross-sell": {
+        body: `CO ZAPSAT PO HOVORU
+
+Zápis musí být stručný, ale úplný. Když se ke zákazníkovi vrátí kolegyně nebo zákazník zavolá zpět, musí být zapsáno vše důležité.
+
+POVINNÉ POLOŽKY ZÁPISU:
+1. Zda byl zákazník zastižen a zda hovor mohl proběhnout
+2. Zda byla potvrzena vstupní data z leadu (cena, spotřeba, zálohy, dodavatel)
+3. Jaká orientační úspora byla komunikována (číslo v Kč)
+4. Jaká námitka zazněla
+5. Jak na ni operátorka reagovala
+6. Zda zákazník souhlasil se zasláním nabídky
+7. Zda byla odeslána nabídka a plná moc
+8. Jaký je další krok nebo termín kontaktu
+
+CROSS-SELL NA KONCI HOVORU
+Pokud zákazník souhlasí s elektřinou, je možné otevřít další produkty. Cross-sell přichází vždy AŽ PO uzavření hlavního tématu – nikdy ne místo něj.
+
+Formulace pro plyn:
+"Topíte plynem? Můžeme vám spočítat úsporu i tam."
+
+Formulace pro výkup FVE:
+"Máte fotovoltaiku? Electree patří mezi nejvýznamnější výkupce přebytků."
+
+PRAVIDLO: Neprodávej dvě hlavní věci najednou. Nejprve uzavři elektřinu, teprve pak otevři další možnost.`,
+      },
+      "Ověřte znalosti": {
+        quiz: [
+          { q: "Kdo má vést závěr hovoru k dalšímu kroku?", a: ["Zákazník sám navrhne, co chce dělat", "Operátorka aktivně vede závěr a navrhuje konkrétní další krok", "Vedoucí smlouvy", "Zákazník i operátorka společně"], correct: 1, explanation: "Závěr nesmí být pasivní. Operátorka vede hovor k výsledku – zákazník musí po hovoru přesně vědět, co bude následovat." },
+          { q: "Co je plná moc v kontextu přechodu dodavatele?", a: ["Dokument pro změnu tarifu", "Autorizace, aby Electree za zákazníka vyřídila výpověď u stávajícího dodavatele", "Souhlas s nahráváním hovoru", "Zákazníkův podpis na smlouvě"], correct: 1, explanation: "Plná moc umožňuje Electree za zákazníka podat výpověď u stávajícího dodavatele. Zákazník jen podepíše – vše ostatní zařídíme my." },
+          { q: "Co se mění při přechodu k Electree z pohledu zákazníka?", a: ["Zákazník dostane nový elektroměr", "Přeruší se dodávka na dobu přepisu", "Mění se jen firma na faktuře – fyzická dodávka elektřiny pokračuje bez přerušení", "Zákazník musí podepsat dohodu s distributorem"], correct: 2, explanation: "Fyzická dodávka elektřiny nikdy nepřestane. Mění se pouze firma, od které zákazník kupuje elektřinu – jinak se nic nemění." },
+          { q: "Kdy je správný čas pro cross-sell (nabídnutí plynu nebo výkupu)?", a: ["Na začátku hovoru jako úvod", "Souběžně s elektřinou – oboje najednou", "Až po uzavření hlavního tématu – nikdy místo něj", "Pouze v dalším hovoru"], correct: 2, explanation: "Cross-sell přichází vždy po uzavření hlavního tématu. Nejprve uzavři elektřinu, teprve pak otevři plyn nebo FVE výkup." },
+          { q: "Co musí být v zápisu vždy uvedeno? (vyber nejúplnější odpověď)", a: ["Pouze výsledek hovoru – souhlasil nebo nesouhlasil", "Dat zákazníka, úspora, námitka, reakce, souhlas se zasláním, odeslána nabídka, další krok", "Jen jméno zákazníka a datum hovoru", "EAN číslo a cena tarifu"], correct: 1, explanation: "Zápis musí zachytit: zastižení, potvrzení dat, komunikovaná úspora, námitka, reakce, souhlas, odeslání nabídky, další krok." },
+          { q: "Jak začít cross-sell na plyn?", a: ["Přejít na plyn bez varování uprostřed hovoru", "Nejprve uzavřít elektřinu, pak se zeptat 'Topíte plynem? Můžeme spočítat úsporu i tam.'", "Nesmím nabízet plyn při hovoru o elektřině", "Počkat na iniciativu zákazníka"], correct: 1, explanation: "Nejprve elektřinu, pak plyn. Formulace: 'Topíte plynem? Můžeme vám spočítat úsporu i tam.' Jednoduché a přirozené." },
+          { q: "Zákazník souhlasí s nabídkou. Co uděláš okamžitě?", a: ["Zapsat si to a zavolat zpět zítra", "Okamžitě odeslat nabídku a plnou moc e-mailem", "Přejít na cross-sell plynu", "Čekat, zda zákazník sám zeptá na e-mail"], correct: 1, explanation: "Po souhlasu okamžitě odesíláme nabídku a plnou moc. Neotálíme – zákazník může do rána rozmyslet." },
+          { q: "Co zákazníkovi zdůrazníme při uzavírání k překonání strachu ze změny?", a: ["Že ostatní dodavatelé jsou nespolehliví", "Jednoduchost přechodu – zákazník jen podepíše, vše ostatní zařídíme my", "Výhodnost nízké ceny za každou cenu", "Délku smlouvy a sankce za předčasné ukončení"], correct: 1, explanation: "Zákazník se bojí změny. Klíčové je zdůraznit jednoduchost: zákazník jen podepíše – výpověď, přepis i komunikaci s distributorem řešíme my." },
+          { q: "Proč je stručný ale úplný zápis důležitý?", a: ["Pouze pro interní statistiky firmy", "Aby kolegyně nebo zákazník, kteří se vrátí, měli všechny důležité informace", "Jen jako právní ochrana", "Zápis ve skutečnosti není potřeba"], correct: 1, explanation: "Zápis je pro kontinuitu péče o zákazníka. Kdokoli, kdo se zákazníkem dále pracuje, musí mít plný kontext." },
+          { q: "Jak formulovat CTA (call to action) po zvládnutí námitky?", a: ["Čekat, zda zákazník sám rozhodne", "Aktivně navrhnutí dalšího kroku: 'Pojďme to zafixovat – pošlu vám nabídku na e-mail'", "Říct zákazníkovi ať si rozmyslí a zavolá", "Přejít na jiný produkt"], correct: 1, explanation: "CTA musí být aktivní a konkrétní. Operátorka navrhuje krok, popisuje co se stane a snižuje bariéru rozhodnutí." },
+        ] as QuizQuestion[],
+      },
+    },
+  },
+  {
+    id: "wiki-praxe",
+    icon: "🔍",
+    title: "Samostatná práce s Electree Wiki",
+    subtitle: "Vyhledávání, SOPs, správný zdroj",
+    total: 2,
+    lessons: [
+      { title: "Jak pracovat s Electree Wiki", mins: 5, type: "reading" },
+      { title: "Ověřte znalosti", mins: 5, type: "quiz" },
+    ],
+    content: {
+      "Jak pracovat s Electree Wiki": {
+        body: `ELECTREE WIKI – VÁŠ PRACOVNÍ NÁSTROJ
+
+Electree Wiki je centrální místo pro všechny informace, které potřebujete při práci. Obsahuje:
+
+KATEGORIE VE WIKI:
+• Produkt – popisy produktů, ceny, pro koho se hodí, kdy nabídnout
+• Distribuce – distribuční sazby D a C, VT/NT, jistič
+• Pojmy – EAN, odstoupení od smlouvy, výpověď, základní pojmy
+• SOP (Standardní operační postup) – přesný postup krok za krokem pro konkrétní akce v EIS
+• Retence – jak reagovat, gdy zákazník chce odejít, námitky
+
+JAK VYHLEDÁVAT
+Vyhledávání funguje chytře:
+• Hledej bez diakritiky: napsat "distribucni sazby" najde "Distribuční sazby"
+• Zkus různá klíčová slova: "EAN", "výrobce", "PPP"
+• Pokud nic nenajdeš – zkus jiné slovo nebo méně slov
+
+SOP vs. WIKI – KDY CO POUŽÍT
+Wiki vysvětluje "co to je a jak to funguje" – vhodné pro pochopení pojmu nebo situace.
+SOP říká přesně "jak postupovat krok za krokem v systému" – vhodné při konkrétní akci v EIS.
+
+Příklad:
+• "Co je EAN výrobce?" → Wiki, kategorie Pojmy
+• "Jak uzavřít smlouvu na výkup v EIS?" → Wiki, kategorie SOP
+
+CÍL TOHOTO MODULU
+Umět si samostatně najít správnou odpověď a použít ji v praxi – bez závislosti na kolegyních nebo vedoucím.`,
+      },
+      "Ověřte znalosti": {
+        quiz: [
+          { q: "Kde ve Wiki najdeš popisy produktů a jejich ceny?", a: ["Kategorie SOP", "Kategorie Distribuce", "Kategorie Produkt", "Kategorie Pojmy"], correct: 2, explanation: "Kategorie Produkt obsahuje popisy všech produktů, ceny, pro koho se hodí a kdy je nabídnout." },
+          { q: "Co je SOP?", a: ["Souhrn produktových podmínek", "Standardní operační postup – přesný krok za krokem návod pro akci v EIS", "Systém oceňování produktů", "Sazba od distributora"], correct: 1, explanation: "SOP = Standardní Operační Postup. Říká přesně jak postupovat v systému EIS při konkrétní akci." },
+          { q: "Jaký je rozdíl mezi Wiki a SOP?", a: ["Nejsou žádný rozdíl", "Wiki vysvětluje pojmy a principy, SOP popisuje přesný postup v systému krok za krokem", "SOP je pro manažery, Wiki pro operátorky", "Wiki je online, SOP je tištěný"], correct: 1, explanation: "Wiki = pochopení situace a pojmů. SOP = jak přesně postupovat v konkrétním případě v EIS." },
+          { q: "Hledáš info o EAN výrobce. Kde to najdeš?", a: ["SOP – Změna ceníku", "Produkt – HOME SOLAR FIX", "Pojmy – EAN odběratele vs EAN výrobce", "Distribuce – distribuční sazby C"], correct: 2, explanation: "EAN a jeho typy jsou vysvětleny v kategorii Pojmy. Hledej 'EAN' nebo 'výrobce' ve vyhledávacím poli." },
+          { q: "Funguje vyhledávání ve Wiki bez diakritiky?", a: ["Ne – musíš psát přesně s háčky a čárkami", "Ano – napsat 'distribucni sazby' najde 'Distribuční sazby'", "Pouze pro názvy produktů", "Pouze v části SOP"], correct: 1, explanation: "Wiki má chytré vyhledávání – funguje i bez diakritiky. 'distribucni sazby' najde 'Distribuční sazby D'." },
+          { q: "Potřebuješ vědět, jak zadat novou smlouvu na dodávku elektřiny v EIS. Kam jdeš?", a: ["Kategorie Produkt – HOME FIX 24", "Kategorie SOP – Smlouva na dodávku elektřiny", "Kategorie Pojmy – Odstoupení od smlouvy", "Kategorie Retence"], correct: 1, explanation: "Pro postup v EIS jdi do kategorie SOP. Tam je přesný krok za krokem návod pro konkrétní akce v systému." },
+          { q: "Co uděláš, pokud vyhledávání nic nenajde?", a: ["Zeptat se kolegyně místo hledání", "Zkusit jiné nebo méně slov ve vyhledávacím poli", "Přijmout, že informace neexistuje", "Zavolat vedoucímu"], correct: 1, explanation: "Zkus jiné slovo nebo méně slov. Wiki může mít informaci pod jiným termínem – experimentuj s hledáním." },
+          { q: "Zákazník se ptá na postup při přepisu výrobny FVE. Kde to najdeš?", a: ["Kategorie Produkt", "Kategorie SOP – Přepis výrobny", "Kategorie Pojmy – EAN", "Kategorie Distribuce"], correct: 1, explanation: "Přepis výrobny je konkrétní postup v EIS – jde do kategorie SOP. Hledej 'přepis' nebo 'výrobna'." },
+          { q: "Proč je důležité umět pracovat s Wiki samostatně?", a: ["Jen pro interní hodnocení výkonu", "Abys mohla rychle najít správnou odpověď bez závislosti na kolegyních", "Wiki je povinná součást každého hovoru", "Protože vedoucí to nechce vysvětlovat znova"], correct: 1, explanation: "Cíl je nezávislost – rychle najít správnou informaci sám/sama a použít ji v praxi bez ptaní se ostatních." },
+          { q: "Zákazník se ptá na podmínky odstoupení od smlouvy. Kde to najdeš rychle?", a: ["SOP – Změna ceníku", "Pojmy – Odstoupení od smlouvy", "Produkt – HOME FIX 24", "Retence – zákazník chce odejít"], correct: 1, explanation: "Odstoupení od smlouvy je pojmové vysvětlení – najdeš ho v kategorii Pojmy. Hledej 'odstoupení' nebo '14 dní'." },
+        ] as QuizQuestion[],
+      },
+    },
   },
 ];
+
+// ─── LEVEL B (zamčeno) ───────────────────────────────────────────────────────
+
+const LEVEL_B: Module[] = [
+  { id: "b-energetika", icon: "⚡", title: "Rozšířená energetika", subtitle: "Trh, kontext, situace zákazníků", total: 0, locked: true, lessons: [], content: {} },
+  { id: "b-produkty", icon: "📦", title: "Pokročilé produkty a služby", subtitle: "Vhodnost řešení, srovnání, limity", total: 0, locked: true, lessons: [], content: {} },
+  { id: "b-hovor", icon: "📞", title: "Pokročilé vedení hovoru", subtitle: "Tok hovoru, přechody, kontrola", total: 0, locked: true, lessons: [], content: {} },
+  { id: "b-diagnostika", icon: "🔎", title: "Diagnostika potřeb zákazníka", subtitle: "Otázky, motivace, situace", total: 0, locked: true, lessons: [], content: {} },
+  { id: "b-sales", icon: "💼", title: "Pokročilé sales dovednosti", subtitle: "Hodnota, argumentace, přínos", total: 0, locked: true, lessons: [], content: {} },
+  { id: "b-odpor", icon: "🛡️", title: "Námitky a práce s odporem", subtitle: "Typy odporu, obava, nejistota", total: 0, locked: true, lessons: [], content: {} },
+  { id: "b-closing", icon: "✅", title: "Uzavírání obchodu", subtitle: "Closing, signály readiness, next step", total: 0, locked: true, lessons: [], content: {} },
+  { id: "b-komunikace", icon: "🗣️", title: "Komunikace a přesvědčivost", subtitle: "Jistota, jazyk, rytmus, stručnost", total: 0, locked: true, lessons: [], content: {} },
+  { id: "b-wiki", icon: "🔍", title: "Práce s Electree Wiki v praxi", subtitle: "Vyhledávání, ověřování, návaznosti", total: 0, locked: true, lessons: [], content: {} },
+];
+
+// ─── LEVEL C (zamčeno) ───────────────────────────────────────────────────────
+
+const LEVEL_C: Module[] = [
+  { id: "c-role", icon: "👥", title: "Role teamleadra", subtitle: "Odpovědnost, výkon, lidé, provoz", total: 0, locked: true, lessons: [], content: {} },
+  { id: "c-vedeni", icon: "🎯", title: "Vedení lidí", subtitle: "Leadership styly, motivace", total: 0, locked: true, lessons: [], content: {} },
+  { id: "c-coaching", icon: "💬", title: "Coaching operátorek", subtitle: "Rozvoj po hovorech, zpětná vazba", total: 0, locked: true, lessons: [], content: {} },
+  { id: "c-qa", icon: "📊", title: "QA a hodnocení kvality", subtitle: "Poslech, kalibrace, scorecards", total: 0, locked: true, lessons: [], content: {} },
+  { id: "c-kpi", icon: "📈", title: "Výkon a KPI", subtitle: "Metriky, trendy, interpretace", total: 0, locked: true, lessons: [], content: {} },
+  { id: "c-vykon", icon: "⚠️", title: "Práce s problémovým výkonem", subtitle: "Slabý výkon, nápravný plán", total: 0, locked: true, lessons: [], content: {} },
+  { id: "c-eskalace", icon: "🔥", title: "Eskalace a rozhodování", subtitle: "Výjimky, konflikty, složité situace", total: 0, locked: true, lessons: [], content: {} },
+  { id: "c-onboarding", icon: "🌱", title: "Rozvoj týmu a onboarding", subtitle: "Zaškolení, plánování růstu, mentoring", total: 0, locked: true, lessons: [], content: {} },
+];
+
+type Level = "A" | "B" | "C";
+
+const ALL_MODULES: Record<Level, Module[]> = { A: LEVEL_A, B: LEVEL_B, C: LEVEL_C };
+
+const LEVEL_META: Record<Level, { label: string; desc: string; color: string }> = {
+  A: { label: "Level A", desc: "Ready na základní prodejní provoz", color: "#D7FF00" },
+  B: { label: "Level B", desc: "Pokročilejší prodej a širší orientace", color: "#B8E8D0" },
+  C: { label: "Level C", desc: "Vedení lidí a výkon", color: "#D1DFD8" },
+};
 
 const typeIcon: Record<string, string> = { video: "▶️", reading: "📄", quiz: "📝" };
 
@@ -277,28 +665,15 @@ function QuizCard({ quiz, onFinish }: { quiz: QuizQuestion[]; onFinish?: () => v
   const optLabels = ["A", "B", "C", "D"];
   const q = quiz[step];
 
-  const handleSelect = (idx: number) => {
-    if (confirmed) return;
-    setSelected(idx);
-    setConfirmed(true);
-  };
+  const handleSelect = (idx: number) => { if (confirmed) return; setSelected(idx); setConfirmed(true); };
 
   const handleNext = () => {
     const newResults = [...results, selected === q.correct];
-    if (step + 1 >= quiz.length) {
-      setResults(newResults);
-      setDone(true);
-    } else {
-      setResults(newResults);
-      setStep(step + 1);
-      setSelected(null);
-      setConfirmed(false);
-    }
+    if (step + 1 >= quiz.length) { setResults(newResults); setDone(true); }
+    else { setResults(newResults); setStep(step + 1); setSelected(null); setConfirmed(false); }
   };
 
-  const handleReset = () => {
-    setStep(0); setSelected(null); setConfirmed(false); setResults([]); setDone(false);
-  };
+  const handleReset = () => { setStep(0); setSelected(null); setConfirmed(false); setResults([]); setDone(false); };
 
   if (done) {
     const score = results.filter(Boolean).length;
@@ -311,14 +686,8 @@ function QuizCard({ quiz, onFinish }: { quiz: QuizQuestion[]; onFinish?: () => v
           <div className={`text-2xl font-bold mb-1 ${passed ? "text-[#0D3D34]" : "text-red-700"}`}>{score}/{quiz.length} správně</div>
           <div className={`text-sm font-semibold mb-4 ${passed ? "text-[#0D3D34]/70" : "text-red-600"}`}>{pct} % — {passed ? "Výborně!" : "Zkus to ještě jednou."}</div>
           <div className="flex gap-2 justify-center">
-            <button onClick={handleReset} className={`px-4 py-2 rounded-xl text-sm font-bold transition-opacity hover:opacity-80 ${passed ? "bg-[#0D3D34]/10 text-[#0D3D34]" : "bg-red-600 text-white"}`}>
-              Zkusit znovu
-            </button>
-            {onFinish && (
-              <button onClick={onFinish} className="px-4 py-2 rounded-xl text-sm font-bold bg-[#0D3D34] text-[#D7FF00] hover:opacity-90 transition-opacity">
-                Dokončit lekci →
-              </button>
-            )}
+            <button onClick={handleReset} className={`px-4 py-2 rounded-xl text-sm font-bold hover:opacity-80 ${passed ? "bg-[#0D3D34]/10 text-[#0D3D34]" : "bg-red-600 text-white"}`}>Zkusit znovu</button>
+            {onFinish && <button onClick={onFinish} className="px-4 py-2 rounded-xl text-sm font-bold bg-[#0D3D34] text-[#D7FF00] hover:opacity-90">Dokončit lekci →</button>}
           </div>
         </div>
         <div className="space-y-2">
@@ -355,21 +724,12 @@ function QuizCard({ quiz, onFinish }: { quiz: QuizQuestion[]; onFinish?: () => v
         <p className="text-sm font-semibold text-[#0D3D34] mb-4 leading-snug">{q.q}</p>
         <div className="space-y-2">
           {q.a.map((opt, i) => {
-            const isSelected = selected === i;
-            const isCorrectOpt = i === q.correct;
+            const isSel = selected === i; const isCo = i === q.correct;
             let cls = "border-[#D1DFD8] hover:border-[#0D3D34]/30 bg-white text-[#0D3D34]";
-            if (confirmed) {
-              if (isCorrectOpt) cls = "border-[#1A6B5A] bg-[#EBF7F1] text-[#1A6B5A] font-semibold";
-              else if (isSelected && !isCorrectOpt) cls = "border-red-400 bg-red-50 text-red-700";
-              else cls = "border-[#D1DFD8] bg-[#F7FAF9] text-[#0D3D34]/40";
-            }
+            if (confirmed) { if (isCo) cls = "border-[#1A6B5A] bg-[#EBF7F1] text-[#1A6B5A] font-semibold"; else if (isSel) cls = "border-red-400 bg-red-50 text-red-700"; else cls = "border-[#D1DFD8] bg-[#F7FAF9] text-[#0D3D34]/40"; }
             return (
-              <button key={i} onClick={() => handleSelect(i)} disabled={confirmed}
-                className={`w-full text-left text-xs px-3 py-2.5 rounded-xl border transition-all flex items-center gap-3 ${cls}`}
-              >
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${confirmed && isCorrectOpt ? "bg-[#1A6B5A] text-white" : confirmed && isSelected && !isCorrectOpt ? "bg-red-500 text-white" : "bg-[#EBF7F1] text-[#0D3D34]/50"}`}>
-                  {optLabels[i]}
-                </span>
+              <button key={i} onClick={() => handleSelect(i)} disabled={confirmed} className={`w-full text-left text-xs px-3 py-2.5 rounded-xl border transition-all flex items-center gap-3 ${cls}`}>
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${confirmed && isCo ? "bg-[#1A6B5A] text-white" : confirmed && isSel && !isCo ? "bg-red-500 text-white" : "bg-[#EBF7F1] text-[#0D3D34]/50"}`}>{optLabels[i]}</span>
                 {opt}
               </button>
             );
@@ -377,47 +737,31 @@ function QuizCard({ quiz, onFinish }: { quiz: QuizQuestion[]; onFinish?: () => v
         </div>
         {confirmed && (
           <div className={`mt-4 rounded-xl p-3 ${isCorrect ? "bg-[#EBF7F1]" : "bg-red-50"}`}>
-            <p className={`text-xs font-bold mb-1 ${isCorrect ? "text-[#1A6B5A]" : "text-red-700"}`}>
-              {isCorrect ? "✓ Správně!" : `✗ Správně je: ${q.a[q.correct]}`}
-            </p>
+            <p className={`text-xs font-bold mb-1 ${isCorrect ? "text-[#1A6B5A]" : "text-red-700"}`}>{isCorrect ? "✓ Správně!" : `✗ Správně je: ${q.a[q.correct]}`}</p>
             <p className="text-xs text-[#0D3D34]/60 leading-relaxed">{q.explanation}</p>
           </div>
         )}
-        {confirmed && (
-          <button onClick={handleNext} className="mt-4 w-full bg-[#0D3D34] text-[#D7FF00] py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
-            {step + 1 < quiz.length ? "Další otázka →" : "Zobrazit výsledky"}
-          </button>
-        )}
+        {confirmed && <button onClick={handleNext} className="mt-4 w-full bg-[#0D3D34] text-[#D7FF00] py-2.5 rounded-xl text-sm font-bold hover:opacity-90">{step + 1 < quiz.length ? "Další otázka →" : "Zobrazit výsledky"}</button>}
       </div>
     </div>
   );
 }
 
-function LessonWizard({ course, onBack }: {
-  course: typeof COURSES[0];
-  onBack: () => void;
-}) {
+function LessonWizard({ module: mod, onBack }: { module: Module; onBack: () => void }) {
   const { markLesson, isDone } = useProgress();
-  const [idx, setIdx] = useState(() => {
-    // start at first undone lesson
-    return 0;
-  });
+  const [idx, setIdx] = useState(0);
   const [phase, setPhase] = useState<"content" | "quiz">("content");
   const [courseComplete, setCourseComplete] = useState(false);
 
-  const lesson = course.lessons[idx];
-  const content = course.content[lesson.title];
+  const lesson = mod.lessons[idx];
+  const content = mod.content[lesson.title];
   const hasBody = !!content?.body;
   const hasQuiz = !!content?.quiz;
 
   const advance = () => {
-    if (!isDone(course.id, idx)) markLesson(course.id, idx);
-    if (idx + 1 >= course.lessons.length) {
-      setCourseComplete(true);
-    } else {
-      setIdx(idx + 1);
-      setPhase("content");
-    }
+    if (!isDone(mod.id, idx)) markLesson(mod.id, idx);
+    if (idx + 1 >= mod.lessons.length) setCourseComplete(true);
+    else { setIdx(idx + 1); setPhase("content"); }
   };
 
   if (courseComplete) {
@@ -425,15 +769,13 @@ function LessonWizard({ course, onBack }: {
       <div className="min-h-screen flex items-center justify-center p-8">
         <div className="text-center max-w-sm">
           <div className="text-6xl mb-4">🎓</div>
-          <h2 className="text-2xl font-bold text-[#0D3D34] mb-2">Kurz dokončen!</h2>
-          <p className="text-[#0D3D34]/50 text-sm mb-6">{course.title}</p>
+          <h2 className="text-2xl font-bold text-[#0D3D34] mb-2">Modul dokončen!</h2>
+          <p className="text-[#0D3D34]/50 text-sm mb-6">{mod.title}</p>
           <div className="bg-[#D7FF00] rounded-2xl p-4 mb-6">
-            <div className="text-[#0D3D34] font-bold">+{course.total * 50} bodů získáno</div>
-            <div className="text-[#0D3D34]/60 text-xs mt-0.5">za dokončení kurzu</div>
+            <div className="text-[#0D3D34] font-bold">+{mod.total * 50} bodů získáno</div>
+            <div className="text-[#0D3D34]/60 text-xs mt-0.5">za dokončení modulu</div>
           </div>
-          <button onClick={onBack} className="bg-[#0D3D34] text-[#D7FF00] px-6 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity">
-            Zpět na kurzy
-          </button>
+          <button onClick={onBack} className="bg-[#0D3D34] text-[#D7FF00] px-6 py-3 rounded-xl font-bold hover:opacity-90">Zpět na moduly</button>
         </div>
       </div>
     );
@@ -441,85 +783,49 @@ function LessonWizard({ course, onBack }: {
 
   return (
     <div className="min-h-screen bg-[#F4F7F6]">
-      {/* Top bar */}
       <div className="bg-white border-b border-[#D1DFD8] px-6 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <button onClick={onBack} className="flex items-center gap-2 text-[#0D3D34]/40 text-sm hover:text-[#0D3D34] transition-colors">
-            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Kurzy
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            Moduly
           </button>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-[#0D3D34]/40 font-medium">{course.icon} {course.title}</span>
-          </div>
-          <span className="text-xs font-bold text-[#0D3D34]/50">Lekce {idx + 1} / {course.total}</span>
+          <span className="text-xs text-[#0D3D34]/40 font-medium">{mod.icon} {mod.title}</span>
+          <span className="text-xs font-bold text-[#0D3D34]/50">Lekce {idx + 1} / {mod.total}</span>
         </div>
-        {/* Progress dots */}
         <div className="max-w-2xl mx-auto flex items-center justify-center gap-1.5 mt-2.5">
-          {course.lessons.map((_, i) => (
-            <div
-              key={i}
-              className={`rounded-full transition-all ${
-                i < idx
-                  ? "w-2 h-2 bg-[#D7FF00]"
-                  : i === idx
-                  ? "w-3 h-3 bg-[#0D3D34]"
-                  : "w-2 h-2 bg-[#D1DFD8]"
-              }`}
-            />
+          {mod.lessons.map((_, i) => (
+            <div key={i} className={`rounded-full transition-all ${i < idx ? "w-2 h-2 bg-[#D7FF00]" : i === idx ? "w-3 h-3 bg-[#0D3D34]" : "w-2 h-2 bg-[#D1DFD8]"}`} />
           ))}
         </div>
       </div>
-
-      {/* Content */}
       <div className="max-w-2xl mx-auto p-6">
         <div className="bg-white border border-[#D1DFD8] rounded-2xl overflow-hidden">
           <div className="px-6 py-4 bg-[#EBF7F1] border-b border-[#D1DFD8]">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-base">{typeIcon[lesson.type]}</span>
               <span className="text-xs text-[#0D3D34]/40">{lesson.mins} min</span>
-              {isDone(course.id, idx) && (
-                <span className="text-[10px] bg-[#D7FF00] text-[#0D3D34] font-bold px-2 py-0.5 rounded-full ml-auto">✓ Splněno</span>
-              )}
+              {isDone(mod.id, idx) && <span className="text-[10px] bg-[#D7FF00] text-[#0D3D34] font-bold px-2 py-0.5 rounded-full ml-auto">✓ Splněno</span>}
             </div>
             <h2 className="font-bold text-[#0D3D34] text-base">{lesson.title}</h2>
           </div>
-
           <div className="p-6">
             {phase === "content" && (
               <>
                 {hasBody ? (
-                  <pre className="text-sm text-[#0D3D34]/80 leading-relaxed whitespace-pre-wrap font-sans mb-6">
-                    {content.body}
-                  </pre>
+                  <pre className="text-sm text-[#0D3D34]/80 leading-relaxed whitespace-pre-wrap font-sans mb-6">{content.body}</pre>
                 ) : lesson.type === "video" ? (
                   <div className="bg-[#0D3D34] rounded-2xl aspect-video flex items-center justify-center mb-6">
-                    <div className="text-center">
-                      <div className="text-4xl mb-2">▶️</div>
-                      <div className="text-white/60 text-sm">Video lekce</div>
-                      <div className="text-white/30 text-xs mt-1">Obsah dostupný v LMS systému</div>
-                    </div>
+                    <div className="text-center"><div className="text-4xl mb-2">▶️</div><div className="text-white/60 text-sm">Video lekce</div><div className="text-white/30 text-xs mt-1">Obsah dostupný v LMS systému</div></div>
                   </div>
                 ) : (
-                  <div className="bg-[#EBF7F1] rounded-2xl p-8 text-center mb-6">
-                    <div className="text-3xl mb-2">📄</div>
-                    <div className="text-[#0D3D34]/50 text-sm">Obsah lekce se připravuje</div>
-                  </div>
+                  <div className="bg-[#EBF7F1] rounded-2xl p-8 text-center mb-6"><div className="text-3xl mb-2">📄</div><div className="text-[#0D3D34]/50 text-sm">Obsah lekce se připravuje</div></div>
                 )}
-
-                <button
-                  onClick={() => hasQuiz ? setPhase("quiz") : advance()}
-                  className="w-full bg-[#0D3D34] text-[#D7FF00] py-3 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
-                >
-                  {hasQuiz ? "Přejít ke kvízu →" : isDone(course.id, idx) ? (idx + 1 < course.total ? "Pokračovat na další lekci →" : "Dokončit kurz →") : "Dokončit lekci · +50 b →"}
+                <button onClick={() => hasQuiz ? setPhase("quiz") : advance()} className="w-full bg-[#0D3D34] text-[#D7FF00] py-3 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
+                  {hasQuiz ? "Přejít ke kvízu →" : isDone(mod.id, idx) ? (idx + 1 < mod.total ? "Pokračovat →" : "Dokončit modul →") : "Dokončit lekci · +50 b →"}
                 </button>
               </>
             )}
-
-            {phase === "quiz" && hasQuiz && (
-              <QuizCard quiz={content.quiz!} onFinish={advance} />
-            )}
+            {phase === "quiz" && hasQuiz && <QuizCard quiz={content.quiz!} onFinish={advance} />}
           </div>
         </div>
       </div>
@@ -528,67 +834,114 @@ function LessonWizard({ course, onBack }: {
 }
 
 export default function AkademieePage() {
-  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+  const [activeLevel, setActiveLevel] = useState<Level>("A");
+  const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const { isDone, countDone } = useProgress();
 
-  const course = COURSES.find((c) => c.id === selectedCourse);
+  const modules = ALL_MODULES[activeLevel];
+  const mod = modules.find((m) => m.id === selectedModule);
 
-  if (selectedCourse && course) {
-    return <LessonWizard course={course} onBack={() => setSelectedCourse(null)} />;
+  if (selectedModule && mod && !mod.locked) {
+    return <LessonWizard module={mod} onBack={() => setSelectedModule(null)} />;
   }
 
+  const totalLessons = LEVEL_A.reduce((s, m) => s + m.total, 0);
+  const doneLessons = LEVEL_A.reduce((s, m) => s + countDone(m.id), 0);
+  const donePct = Math.round((doneLessons / totalLessons) * 100);
+
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-8 max-w-4xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#0D3D34]">Akademie</h1>
-        <p className="text-[#0D3D34]/50 text-sm mt-1">5 kurzů · obsah z reálných školení Tramaco Energy</p>
+        <p className="text-[#0D3D34]/50 text-sm mt-1">Vzdělávací program ve třech úrovních</p>
       </div>
 
-      <div className="bg-[#0D3D34] rounded-2xl p-5 mb-6 flex items-center gap-6">
-        <div className="flex-1">
-          <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Celkový pokrok</div>
-          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-            <div className="h-full rounded-full bg-[#D7FF00]" style={{ width: "56%" }} />
-          </div>
-          <div className="flex justify-between text-xs text-white/50 mt-1"><span>18 / 32 lekcí</span><span>56 %</span></div>
-        </div>
-        <div className="text-right">
-          <div className="text-[#D7FF00] text-2xl font-bold">2/5</div>
-          <div className="text-white/40 text-xs">kurzů dokončeno</div>
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-4">
-        {COURSES.map((c) => {
-          const done = countDone(c.id);
-          const pct = Math.round((done / c.total) * 100);
+      {/* Level tabs */}
+      <div className="flex gap-2 mb-6">
+        {(["A", "B", "C"] as Level[]).map((lvl) => {
+          const meta = LEVEL_META[lvl];
+          const locked = lvl !== "A";
+          const active = activeLevel === lvl;
           return (
             <button
-              key={c.id}
-              onClick={() => setSelectedCourse(c.id)}
-              className="bg-white border border-[#D1DFD8] rounded-2xl p-5 text-left hover:shadow-md hover:border-[#0D3D34]/20 transition-all group"
+              key={lvl}
+              onClick={() => setActiveLevel(lvl)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border transition-all ${active ? "bg-[#0D3D34] text-[#D7FF00] border-[#0D3D34]" : "bg-white border-[#D1DFD8] text-[#0D3D34]/60 hover:border-[#0D3D34]/30"}`}
+            >
+              {locked && <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" strokeLinecap="round" /></svg>}
+              {meta.label}
+              <span className={`text-[9px] font-normal ${active ? "text-[#D7FF00]/70" : "text-[#0D3D34]/40"}`}>{meta.desc}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Level A progress bar */}
+      {activeLevel === "A" && (
+        <div className="bg-[#0D3D34] rounded-2xl p-5 mb-6 flex items-center gap-6">
+          <div className="flex-1">
+            <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Celkový pokrok – Level A</div>
+            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full rounded-full bg-[#D7FF00] transition-all" style={{ width: `${donePct}%` }} />
+            </div>
+            <div className="flex justify-between text-xs text-white/50 mt-1"><span>{doneLessons} / {totalLessons} lekcí</span><span>{donePct} %</span></div>
+          </div>
+          <div className="text-right">
+            <div className="text-[#D7FF00] text-2xl font-bold">{LEVEL_A.filter(m => countDone(m.id) === m.total && m.total > 0).length}/{LEVEL_A.length}</div>
+            <div className="text-white/40 text-xs">modulů dokončeno</div>
+          </div>
+        </div>
+      )}
+
+      {/* Locked level message */}
+      {activeLevel !== "A" && (
+        <div className="bg-[#EBF7F1] border border-[#D1DFD8] rounded-2xl p-8 text-center mb-6">
+          <div className="text-4xl mb-3">🔒</div>
+          <h3 className="font-bold text-[#0D3D34] mb-1">{LEVEL_META[activeLevel].label} – brzy k dispozici</h3>
+          <p className="text-[#0D3D34]/50 text-sm">Obsah pro tuto úroveň se připravuje. Nejprve dokončete Level A.</p>
+        </div>
+      )}
+
+      {/* Module grid */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {modules.map((m) => {
+          const done = countDone(m.id);
+          const pct = m.total > 0 ? Math.round((done / m.total) * 100) : 0;
+          return (
+            <button
+              key={m.id}
+              onClick={() => !m.locked && setSelectedModule(m.id)}
+              className={`bg-white border border-[#D1DFD8] rounded-2xl p-5 text-left transition-all ${m.locked ? "opacity-50 cursor-not-allowed" : "hover:shadow-md hover:border-[#0D3D34]/20 group"}`}
             >
               <div className="flex items-start gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-[#EBF7F1] flex items-center justify-center text-xl flex-shrink-0">{c.icon}</div>
-                <div className="min-w-0">
-                  <div className="font-bold text-[#0D3D34] text-sm group-hover:text-[#1A6B5A] transition-colors">{c.title}</div>
-                  <div className="text-xs text-[#0D3D34]/45 mt-0.5">{c.subtitle}</div>
+                <div className="w-10 h-10 rounded-xl bg-[#EBF7F1] flex items-center justify-center text-xl flex-shrink-0">{m.icon}</div>
+                <div className="min-w-0 flex-1">
+                  <div className={`font-bold text-[#0D3D34] text-sm ${!m.locked ? "group-hover:text-[#1A6B5A] transition-colors" : ""}`}>{m.title}</div>
+                  <div className="text-xs text-[#0D3D34]/45 mt-0.5">{m.subtitle}</div>
                 </div>
+                {m.locked && (
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-[#0D3D34]/30 flex-shrink-0 mt-1">
+                    <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" strokeLinecap="round" />
+                  </svg>
+                )}
               </div>
-              <div>
-                <div className="flex justify-between text-[10px] text-[#0D3D34]/40 mb-1">
-                  <span>{done}/{c.total} lekcí</span>
-                  <span>{pct}%</span>
-                </div>
-                <div className="h-1.5 bg-[#EBF7F1] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: pct === 100 ? "#D7FF00" : "#B8E8D0" }} />
-                </div>
-              </div>
-              <div className="mt-3 flex items-center gap-1.5">
-                {c.lessons.map((_, i) => (
-                  <div key={i} className={`w-2 h-2 rounded-full flex-shrink-0 ${isDone(c.id, i) ? "bg-[#D7FF00]" : "bg-[#D1DFD8]"}`} />
-                ))}
-              </div>
+              {m.total > 0 && (
+                <>
+                  <div>
+                    <div className="flex justify-between text-[10px] text-[#0D3D34]/40 mb-1">
+                      <span>{done}/{m.total} lekcí</span><span>{pct}%</span>
+                    </div>
+                    <div className="h-1.5 bg-[#EBF7F1] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: pct === 100 ? "#D7FF00" : "#B8E8D0" }} />
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center gap-1.5">
+                    {m.lessons.map((_, i) => (
+                      <div key={i} className={`w-2 h-2 rounded-full flex-shrink-0 ${isDone(m.id, i) ? "bg-[#D7FF00]" : "bg-[#D1DFD8]"}`} />
+                    ))}
+                  </div>
+                </>
+              )}
             </button>
           );
         })}
