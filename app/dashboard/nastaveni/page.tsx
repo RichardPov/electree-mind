@@ -46,28 +46,6 @@ export default function NastaveniPage() {
         <p className="text-[#0D3D34]/50 text-sm mt-1">Správa rolí a přístupu v demo prostředí</p>
       </div>
 
-      {/* My role */}
-      <div className="bg-white border border-[#D1DFD8] rounded-2xl p-5 mb-6">
-        <div className="text-xs font-bold text-[#0D3D34]/40 uppercase tracking-widest mb-4">Můj aktuální pohled</div>
-        <div className="flex gap-3">
-          <button onClick={() => switchMyRole("user")}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border-2 transition-all ${currentRole === "user" ? "border-[#0D3D34] bg-[#0D3D34] text-[#D7FF00]" : "border-[#D1DFD8] text-[#0D3D34]/60 hover:border-[#0D3D34]/30"}`}
-          >
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" strokeLinecap="round" /><circle cx="12" cy="7" r="4" /></svg>
-            Operátor
-          </button>
-          <button onClick={() => switchMyRole("admin")}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border-2 transition-all ${currentRole === "admin" ? "border-[#0D3D34] bg-[#0D3D34] text-[#D7FF00]" : "border-[#D1DFD8] text-[#0D3D34]/60 hover:border-[#0D3D34]/30"}`}
-          >
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" strokeLinecap="round" /></svg>
-            Manažer
-          </button>
-        </div>
-        <p className="text-xs text-[#0D3D34]/40 mt-3 text-center">
-          Toto nastavení se projeví okamžitě v celé navigaci.
-        </p>
-      </div>
-
       {/* What each role sees */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="bg-[#EBF7F1] border border-[#B8E8D0] rounded-2xl p-4">
