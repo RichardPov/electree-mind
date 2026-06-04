@@ -266,7 +266,7 @@ export default function AkademieePage() {
   const [activeLevel, setActiveLevel] = useState("A");
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [sectionIdx, setSectionIdx] = useState(0);
-  const { markLesson } = useProgress();
+  const { markLesson, countDone } = useProgress();
 
   if (selectedModule) {
     const mod = MODULES.find(m => m.id === selectedModule)!;
@@ -465,7 +465,24 @@ export default function AkademieePage() {
               </div>
               <h3 className="font-bold text-[#0D3D34] text-sm group-hover:text-[#1A6B5A] transition-colors mb-1">{mod.title}</h3>
               <p className="text-xs text-[#0D3D34]/40 leading-snug mb-3">{mod.subtitle}</p>
-              <div className="text-[10px] text-[#0D3D34]/30">{mod.sections.length} sekcí</div>
+              {(() => {
+                const done = Math.min(countDone(mod.id), mod.sections.length);
+                const pct = Math.round((done / mod.sections.length) * 100);
+                return (
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[10px] text-[#0D3D34]/30">{done}/{mod.sections.length} sekcí</span>
+                      <span className={`text-[10px] font-bold ${pct === 100 ? "text-[#1A6B5A]" : pct > 0 ? "text-[#0D3D34]/50" : "text-[#0D3D34]/25"}`}>{pct} %</span>
+                    </div>
+                    <div className="h-1 bg-[#EBF7F1] rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${pct}%`, backgroundColor: pct === 100 ? "#D7FF00" : "#B8E8D0" }}
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
             </button>
           ))}
         </div>
