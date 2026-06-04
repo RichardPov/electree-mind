@@ -132,7 +132,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   const coreItems = role === "admin"
-    ? [...NAV_ADMIN_EXTRA_CORE, ...NAV_USER_CORE]
+    ? [NAV_USER_CORE[0], ...NAV_ADMIN_EXTRA_CORE, ...NAV_USER_CORE.slice(1)]
     : NAV_USER_CORE;
 
   const toolItems = role === "admin"
