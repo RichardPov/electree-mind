@@ -50,6 +50,12 @@ export default function DashboardHome() {
   return (
     <div className="p-8 max-w-5xl mx-auto">
 
+      {/* Welcome */}
+      <div className="mb-6">
+        <p className="text-[#0D3D34]/40 text-xs uppercase tracking-widest mb-0.5">Vítejte zpět</p>
+        <h1 className="text-2xl font-bold text-[#0D3D34]">Dobrý den, Petro 👋</h1>
+      </div>
+
       {/* Top section: hero + user */}
       <div className="grid lg:grid-cols-3 gap-5 mb-8">
 
