@@ -21,7 +21,6 @@ const NAV_USER_CORE = [
 
 // Extra items only for admin
 const NAV_ADMIN_EXTRA_CORE = [
-  { href: "/dashboard", label: "Přehled", exact: true, icon: (<svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>) },
   { href: "/dashboard/leaderboard", label: "Žebříček", icon: (<svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M8 21H5a2 2 0 01-2-2v-5l7-7 7 7v5a2 2 0 01-2 2h-3" strokeLinecap="round" strokeLinejoin="round" /><path d="M9 21v-6h6v6" strokeLinecap="round" strokeLinejoin="round" /><path d="M12 3l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" strokeLinecap="round" strokeLinejoin="round" /></svg>) },
 ];
 
