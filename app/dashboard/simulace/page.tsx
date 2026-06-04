@@ -420,7 +420,7 @@ const CAT_ORDER: StepCategory[] = ["struktura", "spravnost", "namitka", "cta", "
 
 type SimState = "intro" | "sim" | "results";
 
-const TIMER_SECONDS = 15;
+const TIMER_SECONDS = 12;
 
 function playDing() {
   try {
@@ -447,6 +447,7 @@ export default function SimulacePage() {
   const [currentAnswer, setCurrentAnswer] = useState<number | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
+  const [timedOut, setTimedOut] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scenario = SCENARIOS[attemptCount % SCENARIOS.length];
@@ -461,6 +462,15 @@ export default function SimulacePage() {
       setTimeLeft(prev => {
         if (prev <= 1) {
           if (timerRef.current) clearInterval(timerRef.current);
+          // auto-select correct answer on timeout
+          setTimedOut(true);
+          setCurrentAnswer((curr) => {
+            if (curr === null) {
+              setConfirmed(true);
+              return -1; // sentinel: timed out
+            }
+            return curr;
+          });
           return 0;
         }
         return prev - 1;
@@ -473,6 +483,7 @@ export default function SimulacePage() {
     setAnswers([]);
     setCurrentAnswer(null);
     setConfirmed(false);
+    setTimedOut(false);
     setState("sim");
     setTimeout(resetTimer, 100);
   };
@@ -480,12 +491,15 @@ export default function SimulacePage() {
   const handleSelect = (idx: number) => {
     if (confirmed) return;
     if (timerRef.current) clearInterval(timerRef.current);
+    setTimedOut(false);
     setCurrentAnswer(idx);
     setConfirmed(true);
   };
 
   const handleNext = () => {
-    const newAnswers = [...answers, currentAnswer ?? 0];
+    // -1 = timed out → score 0
+    const effectiveAnswer = (currentAnswer === null || currentAnswer === -1) ? 0 : currentAnswer;
+    const newAnswers = [...answers, effectiveAnswer];
     if (stepIdx + 1 >= totalSteps) {
       setAnswers(newAnswers);
       setState("results");
@@ -494,6 +508,7 @@ export default function SimulacePage() {
       setStepIdx(stepIdx + 1);
       setCurrentAnswer(null);
       setConfirmed(false);
+      setTimedOut(false);
       resetTimer();
     }
   };
@@ -682,7 +697,33 @@ export default function SimulacePage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto p-6">
+      <div className="max-w-2xl mx-auto px-6 pb-6">
+        {/* Big timer above modal */}
+        {!confirmed && (
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs text-[#0D3D34]/40">Odpovězte do:</span>
+              <span className={`text-2xl font-black tabular-nums ${timeLeft <= 4 ? "text-red-600" : timeLeft <= 8 ? "text-orange-500" : "text-[#0D3D34]"}`}>
+                {timeLeft}s
+              </span>
+            </div>
+            <div className="h-2 bg-[#D1DFD8] rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-1000 ${timeLeft <= 4 ? "bg-red-500" : timeLeft <= 8 ? "bg-orange-400" : "bg-[#1A6B5A]"}`}
+                style={{ width: `${(timeLeft / TIMER_SECONDS) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Timeout alert */}
+        {timedOut && confirmed && (
+          <div className="mb-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-3">
+            <svg className="text-red-500 flex-shrink-0" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+            <p className="text-xs text-red-700 font-semibold">Čas vypršel! Zobrazujeme správnou odpověď.</p>
+          </div>
+        )}
+
         <div className="bg-white border border-[#D1DFD8] rounded-2xl overflow-hidden">
           <div className="px-5 py-4 bg-[#EBF7F1] border-b border-[#D1DFD8]">
             <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full text-white mr-2 ${ currentStep.category === "namitka" ? "bg-orange-500" : currentStep.category === "cta" ? "bg-[#1A6B5A]" : currentStep.category === "uzavreni" ? "bg-[#0D3D34]" : "bg-[#0D3D34]/50" }`}>
@@ -700,18 +741,21 @@ export default function SimulacePage() {
             <div className="space-y-2">
               {currentStep.options.map((opt, i) => {
                 const isSel = currentAnswer === i;
+                const isCorrect = i === currentStep.options.findIndex(o => o.score === 2);
                 let cls = "border-[#D1DFD8] hover:border-[#0D3D34]/30 bg-white text-[#0D3D34]";
                 if (confirmed) {
-                  if (isSel && opt.score === 2) cls = "border-[#1A6B5A] bg-[#EBF7F1] text-[#1A6B5A] font-semibold";
-                  else if (isSel && opt.score === 1) cls = "border-yellow-400 bg-yellow-50 text-yellow-800 font-semibold";
-                  else if (isSel && opt.score === 0) cls = "border-red-400 bg-red-50 text-red-700 font-semibold";
+                  // on timeout highlight correct answer
+                  if (timedOut && isCorrect) cls = "border-[#1A6B5A] bg-[#EBF7F1] text-[#1A6B5A] font-semibold";
+                  else if (!timedOut && isSel && opt.score === 2) cls = "border-[#1A6B5A] bg-[#EBF7F1] text-[#1A6B5A] font-semibold";
+                  else if (!timedOut && isSel && opt.score === 1) cls = "border-yellow-400 bg-yellow-50 text-yellow-800 font-semibold";
+                  else if (!timedOut && isSel && opt.score === 0) cls = "border-red-400 bg-red-50 text-red-700 font-semibold";
                   else cls = "border-[#D1DFD8] bg-[#F7FAF9] text-[#0D3D34]/40";
                 }
                 return (
                   <button key={i} onClick={() => handleSelect(i)} disabled={confirmed}
                     className={`w-full text-left text-xs px-3 py-3 rounded-xl border transition-all flex items-start gap-3 ${cls}`}
                   >
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 ${confirmed && isSel && opt.score === 2 ? "bg-[#1A6B5A] text-white" : confirmed && isSel && opt.score === 1 ? "bg-yellow-500 text-white" : confirmed && isSel && opt.score === 0 ? "bg-red-500 text-white" : "bg-[#EBF7F1] text-[#0D3D34]/50"}`}>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 ${confirmed && (timedOut ? isCorrect : isSel && opt.score === 2) ? "bg-[#1A6B5A] text-white" : confirmed && !timedOut && isSel && opt.score === 0 ? "bg-red-500 text-white" : "bg-[#EBF7F1] text-[#0D3D34]/50"}`}>
                       {optLabels[i]}
                     </span>
                     <span className="leading-snug">{opt.text}</span>
@@ -720,12 +764,21 @@ export default function SimulacePage() {
               })}
             </div>
 
-            {confirmed && chosen && (
+            {confirmed && !timedOut && chosen && (
               <div className={`mt-4 rounded-xl p-3 ${chosen.score === 2 ? "bg-[#EBF7F1]" : chosen.score === 1 ? "bg-yellow-50" : "bg-red-50"}`}>
                 <p className={`text-xs font-bold mb-1 ${chosen.score === 2 ? "text-[#1A6B5A]" : chosen.score === 1 ? "text-yellow-700" : "text-red-700"}`}>
                   {chosen.score === 2 ? "✓ Správně!" : chosen.score === 1 ? "~ Částečně správně" : "✗ Špatně"}
                 </p>
                 <p className="text-xs text-[#0D3D34]/60 leading-relaxed">{chosen.feedback}</p>
+              </div>
+            )}
+
+            {confirmed && timedOut && (
+              <div className="mt-4 rounded-xl p-3 bg-[#EBF7F1]">
+                <p className="text-xs font-bold text-[#1A6B5A] mb-1">Správná odpověď:</p>
+                <p className="text-xs text-[#0D3D34]/60 leading-relaxed">
+                  {currentStep.options.find(o => o.score === 2)?.feedback}
+                </p>
               </div>
             )}
 

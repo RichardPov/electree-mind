@@ -246,7 +246,7 @@ function AudioPlayer({ callId }: { callId: string }) {
 export default function HovoryPage() {
   const [tab, setTab] = useState<"obj" | "calls">("obj");
   const [selectedObj, setSelectedObj] = useState<Objection | null>(OBJECTIONS[0]);
-  const [selectedCall, setSelectedCall] = useState<GoldenCall | null>(null);
+  const [selectedCall, setSelectedCall] = useState<GoldenCall | null>(GOLDEN_CALLS[0]);
   const [filter, setFilter] = useState("");
 
   const filteredObj = OBJECTIONS.filter(
