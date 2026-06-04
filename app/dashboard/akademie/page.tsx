@@ -309,10 +309,27 @@ export default function AkademieePage() {
       ? prevMod ? `← ${prevMod.title}` : "← Moduly"
       : `← ${mod.sections[sectionIdx - 1].title}`;
 
+    // Overall Level A progress
+    const totalSections = MODULES.reduce((s, m) => s + m.sections.length, 0);
+    const doneBefore = MODULES.slice(0, modIdx).reduce((s, m) => s + m.sections.length, 0);
+    const overallDone = doneBefore + sectionIdx + 1;
+    const overallPct = Math.round((overallDone / totalSections) * 100);
+
     return (
       <div className="min-h-screen bg-[#F4F7F6]">
         {/* Top bar */}
         <div className="bg-[#0D3D34] px-6 py-4">
+          {/* Level A overall progress */}
+          <div className="max-w-3xl mx-auto mb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Level A celkem</span>
+              <span className="text-[10px] font-bold text-white/40">{overallDone}/{totalSections} sekcí · {overallPct} %</span>
+            </div>
+            <div className="h-0.5 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-white/30 rounded-full transition-all" style={{ width: `${overallPct}%` }} />
+            </div>
+          </div>
+
           <div className="max-w-3xl mx-auto flex items-center justify-between">
             <button
               onClick={() => { setSelectedModule(null); setSectionIdx(0); }}
