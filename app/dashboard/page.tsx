@@ -28,7 +28,7 @@ const CARD_ICON_SIMULACE = (
 const CARDS = [
   {
     href: "/dashboard/akademie",
-    from: "#0D3D34", to: "#1A6B5A",
+    from: "#0A3D2F", to: "#166B53",
     icon: CARD_ICON_AKADEMIE,
     label: "Akademie – Level A",
     desc: "Kdo jsme, produkty, prodejní hovor, námitky",
@@ -46,7 +46,7 @@ const CARDS = [
   },
   {
     href: "/dashboard/simulace",
-    from: "#0D3D34", to: "#0F5C46",
+    from: "#0A3D2F", to: "#166B53",
     icon: CARD_ICON_SIMULACE,
     label: "Simulace hovoru",
     desc: "Nácvik reálných situací s AI hodnocením",
