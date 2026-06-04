@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 type StepCategory = "struktura" | "spravnost" | "namitka" | "cta" | "uzavreni";
 
@@ -420,6 +420,25 @@ const CAT_ORDER: StepCategory[] = ["struktura", "spravnost", "namitka", "cta", "
 
 type SimState = "intro" | "sim" | "results";
 
+const TIMER_SECONDS = 15;
+
+function playDing() {
+  try {
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new AC();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.6);
+  } catch {}
+}
+
 export default function SimulacePage() {
   const [state, setState] = useState<SimState>("intro");
   const [attemptCount, setAttemptCount] = useState(0);
@@ -427,10 +446,27 @@ export default function SimulacePage() {
   const [answers, setAnswers] = useState<number[]>([]);
   const [currentAnswer, setCurrentAnswer] = useState<number | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scenario = SCENARIOS[attemptCount % SCENARIOS.length];
   const totalSteps = scenario.steps.length;
   const currentStep = scenario.steps[stepIdx];
+
+  const resetTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setTimeLeft(TIMER_SECONDS);
+    playDing();
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   const startSim = () => {
     setStepIdx(0);
@@ -438,10 +474,12 @@ export default function SimulacePage() {
     setCurrentAnswer(null);
     setConfirmed(false);
     setState("sim");
+    setTimeout(resetTimer, 100);
   };
 
   const handleSelect = (idx: number) => {
     if (confirmed) return;
+    if (timerRef.current) clearInterval(timerRef.current);
     setCurrentAnswer(idx);
     setConfirmed(true);
   };
@@ -456,6 +494,7 @@ export default function SimulacePage() {
       setStepIdx(stepIdx + 1);
       setCurrentAnswer(null);
       setConfirmed(false);
+      resetTimer();
     }
   };
 
@@ -618,12 +657,28 @@ export default function SimulacePage() {
               <div className="text-[10px] text-[#0D3D34]/40">{scenario.context}</div>
             </div>
           </div>
-          <span className="text-xs font-bold text-[#0D3D34]/50">Krok {stepIdx + 1} / {totalSteps}</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold text-[#0D3D34]/50">Krok {stepIdx + 1} / {totalSteps}</span>
+            {/* Timer */}
+            {!confirmed && (
+              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${timeLeft <= 5 ? "bg-red-100 text-red-600" : timeLeft <= 10 ? "bg-orange-100 text-orange-600" : "bg-[#EBF7F1] text-[#1A6B5A]"}`}>
+                <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" strokeLinecap="round" /></svg>
+                {timeLeft}s
+              </div>
+            )}
+          </div>
         </div>
-        <div className="max-w-2xl mx-auto mt-2.5">
+        <div className="max-w-2xl mx-auto mt-2.5 space-y-1">
           <div className="h-1.5 bg-[#EBF7F1] rounded-full overflow-hidden">
             <div className="h-full bg-[#D7FF00] rounded-full transition-all duration-300" style={{ width: `${pct}%` }} />
           </div>
+          {/* Timer bar */}
+          {!confirmed && (
+            <div className="h-1 bg-[#D1DFD8] rounded-full overflow-hidden">
+              <div className={`h-full rounded-full transition-all duration-1000 ${timeLeft <= 5 ? "bg-red-500" : timeLeft <= 10 ? "bg-orange-400" : "bg-[#1A6B5A]"}`}
+                style={{ width: `${(timeLeft / TIMER_SECONDS) * 100}%` }} />
+            </div>
+          )}
         </div>
       </div>
 

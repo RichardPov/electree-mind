@@ -4,6 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Electree Mind – Inteligentní znalostní systém pro call centra",
   description: "Znalostní centrum, akademie, AI lektor a správa obsahu pro moderní call centra.",
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({

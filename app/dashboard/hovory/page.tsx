@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 type Objection = {
   id: string;
@@ -182,6 +182,67 @@ const GOLDEN_CALLS: GoldenCall[] = [
   },
 ];
 
+function AudioPlayer({ callId }: { callId: string }) {
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  // Demo: simulate playback with a synthetic tone
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const ctxRef = useRef<AudioContext | null>(null);
+
+  const toggle = () => {
+    if (playing) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (ctxRef.current) { ctxRef.current.close(); ctxRef.current = null; }
+      setPlaying(false);
+    } else {
+      setPlaying(true);
+      // simulate progress
+      intervalRef.current = setInterval(() => {
+        setProgress(p => {
+          if (p >= 100) {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            setPlaying(false);
+            return 0;
+          }
+          return p + 0.5;
+        });
+      }, 200);
+    }
+  };
+
+  const durationSec = parseInt(callId === "retence-fve" ? "522" : callId === "spot-na-fix" ? "375" : "270");
+  const elapsed = Math.floor((progress / 100) * durationSec);
+  const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+  return (
+    <div className="bg-[#0D3D34] rounded-2xl p-4 mb-5">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse flex-shrink-0" style={{ animationPlayState: playing ? "running" : "paused" }} />
+        <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex-1">Zvukový záznam hovoru</div>
+        <div className="text-[10px] text-[#D7FF00]/60">{fmt(elapsed)} / {fmt(durationSec)}</div>
+      </div>
+      <div className="flex items-center gap-3">
+        <button onClick={toggle}
+          className="w-9 h-9 rounded-full bg-[#D7FF00] flex items-center justify-center flex-shrink-0 hover:opacity-90 transition-opacity"
+        >
+          {playing ? (
+            <svg width="12" height="12" fill="#0D3D34" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+          ) : (
+            <svg width="12" height="12" fill="#0D3D34" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" /></svg>
+          )}
+        </button>
+        <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden cursor-pointer" onClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          setProgress(((e.clientX - rect.left) / rect.width) * 100);
+        }}>
+          <div className="h-full bg-[#D7FF00] rounded-full transition-all" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+      <div className="text-[10px] text-white/25 mt-2 text-center">Demo nahrávka · reálné záznamy budou nahrány po schválení</div>
+    </div>
+  );
+}
+
 export default function HovoryPage() {
   const [tab, setTab] = useState<"obj" | "calls">("obj");
   const [selectedObj, setSelectedObj] = useState<Objection | null>(OBJECTIONS[0]);
@@ -350,6 +411,9 @@ export default function HovoryPage() {
                   <div className="text-[10px] font-bold text-[#0D3D34]/40 uppercase tracking-widest mb-1">Výsledek</div>
                   <p className="text-sm text-[#0D3D34] font-medium">{selectedCall.result}</p>
                 </div>
+
+                {/* Audio player */}
+                <AudioPlayer key={selectedCall.id} callId={selectedCall.id} />
 
                 {/* Transcript */}
                 <div className="mb-6">
