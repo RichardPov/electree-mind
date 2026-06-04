@@ -167,11 +167,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="text-white/40 text-[10px] uppercase tracking-widest mt-0.5">Knowledge Platform</div>
         </div>
 
-        {/* Search */}
-        <div className="pt-3">
-          <GlobalSearch role={role} />
-        </div>
-
         {/* User */}
         <div className="px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-2.5">
