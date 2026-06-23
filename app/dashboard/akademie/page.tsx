@@ -499,8 +499,8 @@ export default function AkademieePage() {
                 </div>
                 <span className="text-xs text-[#0D3D34]/30 font-mono">{String(mi + 1).padStart(2, "0")}</span>
               </div>
-              <h3 className="font-bold text-[#0D3D34] text-sm group-hover:text-[#1A6B5A] transition-colors mb-1">{mod.title}</h3>
-              <p className="text-xs text-[#0D3D34]/40 leading-snug mb-3">{mod.subtitle}</p>
+              <h3 className="font-bold text-[#0D3D34] text-sm leading-snug group-hover:text-[#1A6B5A] transition-colors mb-1 line-clamp-2 min-h-[2.5rem]">{mod.title}</h3>
+              <p className="text-xs text-[#0D3D34]/40 leading-snug mb-3 line-clamp-3 min-h-[3.1rem]">{mod.subtitle}</p>
               {(() => {
                 const done = Math.min(countDone(mod.id), mod.sections.length);
                 const pct = Math.round((done / mod.sections.length) * 100);

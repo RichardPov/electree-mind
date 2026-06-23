@@ -38,8 +38,8 @@ export default function VideaPage() {
               </div>
             </div>
             <div className="p-4">
-              <h3 className="font-bold text-[#0D3D34] text-sm group-hover:text-[#1A6B5A] transition-colors mb-1.5">{v.title}</h3>
-              <p className="text-xs text-[#0D3D34]/45 leading-snug mb-3">{v.subheadline}</p>
+              <h3 className="font-bold text-[#0D3D34] text-sm leading-snug group-hover:text-[#1A6B5A] transition-colors mb-1.5 line-clamp-2 min-h-[2.5rem]">{v.title}</h3>
+              <p className="text-xs text-[#0D3D34]/45 leading-snug mb-3 line-clamp-3 min-h-[3.1rem]">{v.subheadline}</p>
               <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1A6B5A]">
                 <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" /></svg>
                 Přehrát video
