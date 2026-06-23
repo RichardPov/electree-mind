@@ -1,6 +1,10 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useProgress } from "@/hooks/useProgress";
+import { VIDEOS_BY_ID } from "@/lib/videos";
+import VideoPlayerModal from "@/components/VideoPlayerModal";
 
 type Section = {
   id: string;
@@ -8,6 +12,7 @@ type Section = {
   lead: string;
   points: string[];
   insight: string;
+  video?: string;
 };
 
 type Module = {
@@ -95,6 +100,7 @@ const MODULES: Module[] = [
           "V zimních špičkách může SPOT dosáhnout 6–8 Kč/kWh (FIX 24 = 2,35 Kč/kWh)",
         ],
         insight: "FIX nabídněte 90 % zákazníků. SPOT pouze těm, kdo rozumí trhu, mají AMM metr a flexibilní spotřebu (EV, FVE, noční nabíjení).",
+        video: "fix-vs-spot",
       },
       {
         id: "fve",
@@ -107,6 +113,7 @@ const MODULES: Module[] = [
           "Solar FIX MINI (do 1 MWh) vyžaduje odběrnou smlouvu u Electree",
         ],
         insight: "Máme ~17 000 výrobních míst. To není číslo – to je argument. Electree ve výkupu FVE předčí i velké hráče díky zkušenostem a procesům.",
+        video: "fix-vs-spot-vykup",
       },
     ],
   },
@@ -266,6 +273,7 @@ export default function AkademieePage() {
   const [activeLevel, setActiveLevel] = useState("A");
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [sectionIdx, setSectionIdx] = useState(0);
+  const [playingVideo, setPlayingVideo] = useState<string | null>(null);
   const { markLesson, countDone } = useProgress();
 
   if (selectedModule) {
@@ -387,7 +395,7 @@ export default function AkademieePage() {
           </div>
 
           {/* Insight callout */}
-          <div className="bg-[#0D3D34] rounded-2xl p-6 mb-10">
+          <div className="bg-[#0D3D34] rounded-2xl p-6 mb-5">
             <div className="flex items-start gap-4">
               <div className="w-8 h-8 rounded-xl bg-[#D7FF00] flex items-center justify-center flex-shrink-0 mt-0.5">
                 <svg width="14" height="14" fill="none" stroke="#0D3D34" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
@@ -398,6 +406,29 @@ export default function AkademieePage() {
               </div>
             </div>
           </div>
+
+          {/* Related video */}
+          {sec.video && VIDEOS_BY_ID[sec.video] && (
+            <button
+              onClick={() => setPlayingVideo(sec.video!)}
+              className="w-full bg-white border border-[#D1DFD8] rounded-2xl p-4 mb-10 flex items-center gap-4 text-left hover:border-[#0D3D34]/25 hover:shadow-md transition-all group"
+            >
+              <div className="relative w-28 h-16 rounded-xl bg-[#0D3D34] overflow-hidden flex-shrink-0">
+                <Image src={VIDEOS_BY_ID[sec.video].thumb} alt={VIDEOS_BY_ID[sec.video].title} fill className="object-cover opacity-90" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-[#D7FF00] flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg width="11" height="11" fill="#0D3D34" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" /></svg>
+                  </div>
+                </div>
+              </div>
+              <div className="min-w-0">
+                <div className="text-[10px] font-bold text-[#1A6B5A] uppercase tracking-widest mb-1">Doplňkové video</div>
+                <div className="text-sm font-bold text-[#0D3D34] truncate">{VIDEOS_BY_ID[sec.video].title}</div>
+                <div className="text-xs text-[#0D3D34]/45 truncate">{VIDEOS_BY_ID[sec.video].subheadline}</div>
+              </div>
+            </button>
+          )}
+          {!sec.video && <div className="mb-10" />}
 
           {/* Double CTA */}
           <div className="grid grid-cols-2 gap-3">
@@ -417,6 +448,10 @@ export default function AkademieePage() {
             </button>
           </div>
         </div>
+
+        {playingVideo && VIDEOS_BY_ID[playingVideo] && (
+          <VideoPlayerModal video={VIDEOS_BY_ID[playingVideo]} onClose={() => setPlayingVideo(null)} />
+        )}
       </div>
     );
   }
@@ -486,7 +521,25 @@ export default function AkademieePage() {
             </button>
           ))}
         </div>
-      ) : (
+      ) : null}
+
+      {activeLevel === "A" && (
+        <Link
+          href="/dashboard/videa"
+          className="mt-6 flex items-center gap-4 bg-[#0D3D34] rounded-2xl p-5 hover:opacity-95 transition-opacity"
+        >
+          <div className="w-11 h-11 rounded-xl bg-[#D7FF00] flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" fill="none" stroke="#0D3D34" strokeWidth="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" /></svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-white font-bold text-sm">Doplňková videa o energetice</h3>
+            <p className="text-white/50 text-xs mt-0.5">Jak vzniká cena, nulové a záporné ceny, odchylka a rezervní výkon</p>
+          </div>
+          <svg width="16" height="16" fill="none" stroke="#D7FF00" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </Link>
+      )}
+
+      {activeLevel !== "A" && (
         <div className="bg-[#EBF7F1] border border-[#D1DFD8] rounded-2xl p-10 text-center">
           <div className="w-12 h-12 rounded-2xl bg-white border border-[#D1DFD8] flex items-center justify-center mx-auto mb-4">
             <svg width="18" height="18" fill="none" stroke="#0D3D34" strokeWidth="1.8" strokeOpacity="0.3" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" strokeLinecap="round" /></svg>
