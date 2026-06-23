@@ -27,10 +27,12 @@ export default function VideaPage() {
                 src={v.thumb}
                 alt={v.title}
                 fill
-                className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover group-hover:scale-105 transition-all duration-300"
               />
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 rounded-full bg-[#D7FF00] flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                <div className="w-12 h-12 rounded-full bg-[#D7FF00] flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg ring-4 ring-black/10">
                   <svg width="16" height="16" fill="#0D3D34" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" /></svg>
                 </div>
               </div>

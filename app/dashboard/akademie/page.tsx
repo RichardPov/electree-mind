@@ -414,9 +414,10 @@ export default function AkademieePage() {
               className="w-full bg-white border border-[#D1DFD8] rounded-2xl p-4 mb-10 flex items-center gap-4 text-left hover:border-[#0D3D34]/25 hover:shadow-md transition-all group"
             >
               <div className="relative w-28 h-16 rounded-xl bg-[#0D3D34] overflow-hidden flex-shrink-0">
-                <Image src={VIDEOS_BY_ID[sec.video].thumb} alt={VIDEOS_BY_ID[sec.video].title} fill className="object-cover opacity-90" />
+                <Image src={VIDEOS_BY_ID[sec.video].thumb} alt={VIDEOS_BY_ID[sec.video].title} fill sizes="112px" className="object-cover" />
+                <div className="absolute inset-0 bg-black/20" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-8 h-8 rounded-full bg-[#D7FF00] flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="w-8 h-8 rounded-full bg-[#D7FF00] flex items-center justify-center group-hover:scale-110 transition-transform ring-2 ring-black/10">
                     <svg width="11" height="11" fill="#0D3D34" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" /></svg>
                   </div>
                 </div>
