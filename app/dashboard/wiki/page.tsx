@@ -500,62 +500,105 @@ Přechod trvá: cca 30–45 dní od podání výpovědi (závisí na distributor
     id: "sop-zalozeni",
     title: "SOP: Založení zákazníka v EIS",
     category: "SOP",
-    tags: ["SOP", "EIS", "CRM", "novy zakaznik", "zalozeni", "postup", "system", "registrace"],
-    body: `1. Přihlásit se do EIS → sekce Zákazníci → Nový zákazník
-2. Vyplnit: jméno, příjmení, datum narození, adresa trvalého bydliště
-3. Zadat kontaktní údaje: telefon, e-mail
-4. Vyhledat EAN pomocí čísla EAN nebo adresy odběrného místa
-5. Zkontrolovat aktuálního dodavatele a sazbu distributora
-6. Spustit proces uzavření smlouvy
+    tags: ["SOP", "EIS", "CRM", "novy zakaznik", "zalozeni", "postup", "system", "registrace", "ARES", "domacnost", "podnikatel"],
+    body: `1. Otevřeme EIS a nejprve vždy zkontrolujeme, jestli zákazník už v systému není – v Rychlém hledání zadáme např. e-mail a dáme Hledat.
 
-Nutné doklady: doklad totožnosti (OP nebo pas), EAN číslo (z faktury od distributora).
-Po uložení systém automaticky odešle potvrzovací e-mail zákazníkovi.`,
+2. Pokud nic nenajde, klikneme dole na "Nový" a vyplníme tabulku Nový zákazník:
+• Typ zákazníka: Domácnost nebo Podnikatel
+• Domácnost: jméno, příjmení, datum narození, mobil, e-mail, adresa trvalého bydliště → Uložit.
+• Podnikatel: název společnosti, IČO → klikneme na zelenou šipku "Ověřit v ARES" (automaticky se natáhnou údaje z ARES – Administrativní registr ekonomických subjektů), doplníme zastupující osobu, telefon, e-mail → Uložit.
+
+Tímto je zákazník založen a může se pokračovat smlouvou na dodávku nebo výkup.`,
   },
   {
     id: "sop-smlouva-dodavka",
     title: "SOP: Smlouva na dodávku elektřiny",
     category: "SOP",
-    tags: ["SOP", "EIS", "smlouva", "dodavka", "elektrina", "uzavreni", "postup", "novy odber"],
-    body: `1. Zákazník nalezen nebo nově založen v EIS
-2. Vybrat produkt: HOME FIX 12/24/36 nebo EXPERT FIX 24
-3. Zadat EAN odběratele (spotřební EAN – 18 číslic)
-4. Zkontrolovat distribuční sazbu zákazníka (D nebo C)
-5. Nastavit datum zahájení dodávky (min. 30 dní od podpisu)
-6. Zákazník potvrdí smlouvu: SMS kód nebo písemně
-7. Odeslat zákazníkovi kopii smlouvy e-mailem
+    tags: ["SOP", "EIS", "smlouva", "dodavka", "elektrina", "uzavreni", "postup", "novy odber", "VT NT", "jistic", "typ mereni", "SIGNI"],
+    body: `Ke korektnímu uzavření potřebujeme od zákazníka vyplněnou žádost a poslední fakturu od stávajícího obchodníka.
 
-Zákazník má 14 dní na odstoupení (bez udání důvodu).
-Přechod k Electree: distributor zpracuje cca 30–45 dní.`,
+1. Vytvoření smluvního účtu
+• U zákazníka → záložka Smlouvy a Odběrná místa → Nový.
+• Typ smlouvy: Spotřeba. U čísla smlouvy klikneme na zelené kolečko "Vygenerovat číslo smlouvy".
+• Doba neurčitá = ceníky SPOT, Doba určitá = ceníky FIX.
+• Datum od: dle stávající smlouvy (najdeme ve faktuře od stávajícího obchodníka). Datum do se natáhne samo.
+• Výpovědní doba: SPOT domácnost 1 měsíc, SPOT firma 3 měsíce (vždy od 1. dne následujícího měsíce po obdržení výpovědi – výpověď podaná 7. 1. → konec k 28. 2. domácnost / k 30. 4. firma). FIX domácnost nejpozději 20 dní před koncem fixace (v EIS zadáváme 1), FIX firma nejpozději 3 měsíce před koncem fixace.
+• Automatická prolongace jen u smlouvy na dobu určitou. Důvod vyplníme vždy dle žádosti zákazníka. Doplníme číslo účtu, kód banky/SIPO, způsob platby, případně korespondenční adresu → Uložit.
+
+2. Založení smlouvy
+• Na smluvním účtu klikneme na tři čárky → Nové OM.
+• Vybereme produkt, Partner: Electree interní, BO: Smlouva online, AC/CC/retence: své jméno.
+• Perioda záloh (měsíční/čtvrtletní dle přání) a výše zálohy dle kalkulačky.
+• Vyplníme tabulku Předchozí dodavatel a do poznámky vložíme EAN + co je u smlouvy potřeba udělat.
+• Technické údaje vyplníme podle faktury, kterou zákazník zaslal, a adresu odběrného místa → Uložit.
+• Podklady uložíme do záložky Dokumenty a odešleme zákazníkovi e-mail s návodem na podpis v SIGNI (šablona "Smlouva o dodávce").
+• Pokud podepisuje partner na základě plné moci nebo chceme plnou moc zaslat se smlouvou: po přepnutí na ANO VŽDY nejprve Uložit a až poté odeslat k podpisu.
+• Klikneme na "Vytvořit a odeslat novou smlouvu k podpisu do SIGNI".
+• Na záložce Zákazník se automaticky vytvoří úkol Registrace zákazníka – otevřeme ho (tužka vpravo), nastavíme Stav: Dokončený, Typ: Nová smlouva, Přiřadit uživatele: své jméno, do poznámky napíšeme datum odeslání smlouvy → Uložit.
+
+Technické údaje – na co si dát pozor:
+• Typ měření: A = vysoké napětí. B = chytrý elektroměr (většinou FVE, měsíční fakturace). C1 = dnes nahrazuje B u FVE, měsíční fakturace. C4 = elektroměr neodesílá data sám, probíhá roční odečet.
+• Distribuční sazba: z faktury, určuje se vždy dle spotřebiče s největším příkonem.
+• Roční spotřeba VT/NT: z faktury. Pokud máme jen celkovou spotřebu a sazba je dvoutarifní, dopočítáme podle délky NT: 8 h NT → NT tvoří 33 % spotřeby (VT 67 %); 16 h NT → NT 67 % (VT 33 %); 20 h NT → NT 83 % (VT 17 %); 22 h NT → NT 91 % (VT 9 %).
+• Způsob připojení: jednofázové/třífázové (z faktury). Hodnota jističe se zadává bez fáze – jistič 3×25A → způsob připojení třífázové, hodnota jističe 25.
+• Číslo měřidla = číslo elektroměru.`,
   },
   {
     id: "sop-smlouva-vykup",
     title: "SOP: Smlouva na výkup elektřiny (FVE)",
     category: "SOP",
-    tags: ["SOP", "EIS", "smlouva", "vykup", "FVE", "fotovoltaika", "solar", "postup", "EAN vyrobce"],
-    body: `1. Ověřit, že zákazník má u Tramaco odběr elektřiny (nutné pro FIX MINI)
-2. Zjistit roční výrobu FVE → vybrat produkt (MINI / FIX / MAXI)
-3. Zadat EAN výrobce (výrobní EAN – NUTNÝ! Nikoli spotřební EAN)
-4. Ověřit dokument PPP nebo SoP – zde najdeme výrobní EAN
-5. POZOR: Z dokumentu UTP EAN výrobce NEVYTAHUJEME
-6. Vyplnit smlouvu v EIS → zákazník potvrdí (SMS nebo e-mail)
-7. Odeslat kopii smlouvy e-mailem
+    tags: ["SOP", "EIS", "smlouva", "vykup", "FVE", "fotovoltaika", "solar", "postup", "EAN vyrobce", "PPP", "UTP", "SIGNI"],
+    body: `Ke korektnímu uzavření potřebujeme od zákazníka vyplněnou žádost a doklad s výrobním EAN: dokument o prvním paralelním připojení (PPP), u nově připojených FVE i smlouva o připojení (SoP), předchozí vyúčtování, nebo jakýkoli e-mail od distribuce s výrobním EAN.
 
-Aktivace výkupu: cca 30–45 dní po podpisu (závisí na distributorovi).`,
+POZOR: dokument UTP (uvedení do trvalého provozu) obsahuje vždy EAN SPOTŘEBNÍ – nikdy výrobní!
+
+1. Vytvoření smluvního účtu
+• Smlouvy a Odběrná místa → Nový → Typ smlouvy: Výroba → vygenerovat číslo smlouvy.
+• Doba neurčitá = ceníky SPOT, Doba určitá = ceník FIX.
+• Datum od: dle předchozí smlouvy, u nové FVE 10–14 dní.
+• Výpovědní doba 3 měsíce: u SPOTu 3 měsíce od 1. dne následujícího měsíce po obdržení výpovědi. U FIX musí zákazník podat výpověď nejpozději 3 měsíce před koncem fixace (smlouva do 31. 12. → výpověď nejpozději do 30. 9.).
+• Automatická prolongace jen u doby určité. Důvod: Nový výkup / Změna dodavatele. Fakturace výroby dle administrativního paušálu, který si zákazník zvolí. Doplníme číslo účtu, kód banky, korespondenční adresu → Uložit.
+
+2. Založení smlouvy
+• Na smluvním účtu tři čárky → Nová výroba.
+• Vybereme produkt, Partner: Electree interní, BO: Smlouva online, AC/CC/retence: své jméno.
+• Do poznámky vložíme EAN a napíšeme, o jakou smlouvu jde a co je potřeba udělat (nová FVE, kam a k jakému datu podat výpověď, akceptace výpovědi).
+• Vyplníme technické údaje (instalovaný výkon, baterie, kapacita baterie, typ střídače) a adresu odběrného místa → Uložit.
+• Podklady uložíme do Dokumentů a odešleme e-mail s návodem na podpis v SIGNI (šablona "Smlouva o výkupu"). Případně doplníme zastupující osobu.
+• Klikneme na "Vytvořit a odeslat novou smlouvu k podpisu do SIGNI".
+• Na záložce Zákazník se automaticky vytvoří úkol Registrace zákazníka – otevřeme (tužka vpravo), Stav: Dokončený, Typ: Nová smlouva, Přiřadit uživatele: své jméno, do poznámky datum odeslání → Uložit.
+
+Pokud zákazník v žádosti neuvede, kolik MWh/rok dodá do sítě, propočítáme orientačně: (velikost baterie v kWh × 180 − instalovaný výkon FVE v kWp × 1 000) ÷ 2 = MWh/rok (vezmeme absolutní hodnotu výsledku). Příklad: baterie 14,2 kWh, FVE 10 kWp → (14,2×180 − 10 000) ÷ 2 = 3,722 MWh/rok. Vždy jde pouze o orientační odhad.`,
   },
   {
     id: "sop-prepis-vyrobny",
     title: "SOP: Přepis výrobny (změna majitele FVE)",
     category: "SOP",
-    tags: ["SOP", "prepis", "vyrobna", "FVE", "zmena majitele", "smrt", "dedictvi", "prodej domu"],
-    body: `Při prodeji nemovitosti nebo dědictví:
+    tags: ["SOP", "prepis", "vyrobna", "FVE", "zmena majitele", "smrt", "dedictvi", "prodej domu", "prepis OM"],
+    body: `1. Formulář k přepisu
+Od zákazníka potřebujeme vyplněný formulář Žádost o změnu zákazníka – část A (původní ZK) i část B (nový ZK), a doklad o nabytí nebo zániku užívacího práva (kupní/nájemní smlouva).
 
-1. Původní zákazník: výpověď smlouvy o výkupu (nebo zánik ze zákona)
-2. Nový majitel: doložit nabytí vlastnictví (kupní smlouva, usnesení o dědictví)
-3. Nový majitel musí mít nebo uzavřít odběrovou smlouvu u Tramaco
-4. Zahájit novou smlouvu o výkupu – viz SOP Smlouva výkup
-5. Znovu ověřit EAN výrobce (může být změněn distributorem)
+Přepis výrobny se nezadává na distribuci. Snažíme se dodržet datum přepisu do budoucna, není to ale nutnost – při úmrtí nebo zpracování na přelomu měsíce lze přepis udělat k 1. dni měsíce, ve kterém se zpracovává.
 
-Upozornění: stará smlouva nepřechází automaticky. Nový majitel musí uzavřít smlouvu novou.`,
+2. Dohledání stávajícího zákazníka
+Dohledáme ho v EIS a ujistíme se, že smlouva je u nás vedena. Necháme si jeho kartu otevřenou.
+
+3. Nový zákazník
+Otevřeme novou kartu, zkontrolujeme, zda už nového zákazníka nemáme založeného – pokud ne, založíme klasicky (viz SOP Založení zákazníka) a založíme pouze smluvní účet.
+
+4. Přepis výrobního EAN
+• U stávajícího zákazníka zadáme datum ukončení smlouvy tak, aby smlouvy navazovaly (stejně jako u změny ceníku).
+• U smlouvy klikneme na Možnosti → Přepis OM.
+• V tabulce Přepis OM napíšeme jméno nového zákazníka a vybereme ho kliknutím (pokud už u nás je, dáme pozor na výběr správného čísla smlouvy).
+• Vybereme produkt – NEPONECHÁVÁME stávající, vybíráme z aktuální nabídky. Zkontrolujeme datum začátku výkupu (musí navazovat na původní smlouvu) a do poznámky dopíšeme, na koho se přepisuje.
+• Zkontrolujeme technické údaje a adresu OM (natahují se automaticky z původní smlouvy) → Uložit.
+• Vytvoříme úkol "Přepis výrobny".
+
+5. Dokončení přepisu
+• U nového zákazníka se automaticky vytvoří ve smluvním účtu Nová výrobna.
+• Uložíme veškeré podklady ke stávajícímu i novému zákazníkovi.
+• Odešleme smlouvu o výkupu k podpisu.
+• Uzavřeme úkol registrace zákazníka.`,
   },
   {
     id: "sop-zmena-ceniku",
