@@ -18,6 +18,39 @@ type Cert = {
 
 const CERTS: Cert[] = [
   {
+    id: "zaklady-energetiky",
+    title: "Základy energetiky",
+    desc: "Pojmy, EAN/EIC, instituce trhu, distribuce a FVE výkup – základ pro každého nového operátora.",
+    progress: 0,
+    badge: "⚡",
+    color: "#EBF7F1",
+    status: "active",
+    skills: ["EAN a EIC", "ČEPS / ERÚ / OTE", "Distribuční sazby", "FVE výkup"],
+    questions: [
+      { q: "Kdo zajišťuje distribuci elektřiny na území Jižní Moravy?", options: ["ČEZ Distribuce", "EG.D", "PRE Distribuce", "GasNet"], correct: 1, explanation: "Jižní Morava patří do distribučního území EG.D (dříve E.ON Distribuce). ČEZ Distribuce kryje většinu zbytku ČR, PRE jen Prahu." },
+      { q: "Je Electree obchodník (dodavatel), nebo distributor?", options: ["Distributor – vlastní distribuční síť", "Obchodník (dodavatel) – prodává elektřinu a plyn, síť nevlastní", "Výrobce elektřiny", "Regulační orgán trhu"], correct: 1, explanation: "Electree je dodavatel (obchodník) – nakupuje a prodává elektřinu/plyn a vykupuje přetoky z FVE. Síť vlastní a provozují distributoři (ČEZ Distribuce, EG.D, PRE Distribuce)." },
+      { q: "Co znamená zkratka EAN?", options: ["Evidenční adresa nemovitosti", "Identifikační číslo odběrného/výrobního místa elektřina (18místné)", "Energetický audit nemovitosti", "Evropská asociace dodavatelů"], correct: 1, explanation: "EAN jednoznačně identifikuje konkrétní odběrné nebo výrobní místo elektřiny – 18místné číslo, začínající 859182400." },
+      { q: "Kdo stanovuje cenu za distribuci elektřiny a plynu?", options: ["Každý distributor si ji určuje sám", "ERÚ – Energetický regulační úřad", "OTE", "Dodavatel (obchodník)"], correct: 1, explanation: "ERÚ reguluje cenu za distribuci – ta je stejná pro všechny dodavatele v daném území při stejné sazbě a jističi. Dodavatel ji neovlivní." },
+      { q: "Co znamená zkratka OTE?", options: ["Operátor trhu s energiemi", "Obchodní tarif elektřiny", "Odbor technické energetiky", "Organizace trhu s elektřinou"], correct: 0, explanation: "OTE = Operátor trhu s energiemi. Zajišťuje zúčtování odchylek, správu trhu a stanovuje spotovou cenu." },
+      { q: "Kdo zajišťuje odečet elektroměru?", options: ["Dodavatel (Electree)", "Distributor (např. EG.D, ČEZ Distribuce)", "OTE", "Zákazník si odečet vždy dělá sám"], correct: 1, explanation: "Odečet zajišťuje distributor – elektroměr fyzicky vlastní a provozuje, bez ohledu na to, kdo je dodavatel." },
+      { q: "U jaké komodity používáme EIC kód?", options: ["Elektřina", "Plyn", "Voda", "Teplo"], correct: 1, explanation: "EIC je identifikační číslo odběrného místa PLYNU. U elektřiny se používá EAN." },
+      { q: "Kdo vykupuje přetoky z FVE?", options: ["Vždy jen distributor", "Obchodník (dodavatel) na základě smlouvy o výkupu – např. Electree", "OTE automaticky", "Přetoky nelze prodávat"], correct: 1, explanation: "Přetoky vykupuje obchodník na základě uzavřené smlouvy o výkupu. Distributor síť jen provozuje, výkup nezajišťuje." },
+      { q: "Co je přetok do sítě?", options: ["Výpadek dodávky elektřiny", "Elektřina vyrobená FVE, kterou domácnost nespotřebuje a odešle do sítě", "Porucha na elektroměru", "Zvýšení napětí v síti"], correct: 1, explanation: "Přetok je přebytek výroby FVE nad aktuální spotřebou domácnosti. Se smlouvou o výkupu na něm zákazník vydělá." },
+      { q: "Kdo stanovuje cenu SPOTu pro výkup elektřiny z FVE?", options: ["Electree", "ERÚ", "OTE – Operátor trhu s energiemi", "Distributor"], correct: 2, explanation: "Cena spotu se odvíjí od situace na trhu a je stanovena OTE. Mění se každou hodinu, ve špičkách může klesnout i do záporu." },
+      { q: "Jaký elektroměr musí mít zákazník, který má FVE?", options: ["Jednotarifový", "Čtyřkvadrantní (měří odběr i dodávku do sítě)", "Žádný speciální elektroměr není potřeba", "Mechanický indukční"], correct: 1, explanation: "Čtyřkvadrantní elektroměr měří odebranou i dodanou (přetokovou) elektřinu – nutné pro správné vyúčtování výkupu." },
+      { q: "Na jakém distribučním území se nachází zákazník s EAN 859182400405238965?", options: ["EG.D", "PRE Distribuce", "ČEZ Distribuce", "GasNet"], correct: 2, explanation: "Po prefixu 859182400 následuje rozlišovací číslice: 1–2 = EG.D, 3 = PRE, 4–9 = ČEZ Distribuce. Zde je to číslice 4 → ČEZ Distribuce." },
+      { q: "Na jakém distribučním území se nachází zákazník s EIC 27ZG700Z20516964?", options: ["EG.D", "Pražská plynárenská Distribuce", "GasNet", "ČEZ Distribuce"], correct: 2, explanation: "U EIC plynu prefix 27ZG + číslo určuje distributora: 900 = EG.D, 100 = Pražská plynárenská Distribuce, 200–700 = GasNet. Zde 700 → GasNet." },
+      { q: "Co znamená zkratka SoP?", options: ["Smlouva o připojení", "Souhlas o platbě", "Smlouva o prodeji", "Stav odběrného místa"], correct: 0, explanation: "SoP = smlouva o připojení. Bývá v ní uveden i výrobní EAN, pokud se připojuje FVE." },
+      { q: "Co znamená zkratka PM?", options: ["Provozní manuál", "Plná moc", "Platební metoda", "Přenosová mapa"], correct: 1, explanation: "PM = plná moc. Zákazník jí zmocňuje Electree, aby za něj vyřídilo např. výpověď u stávajícího dodavatele." },
+      { q: "Jak se značí distribuční sazba, když je zákazník podnikatel?", options: ["Vždy stejně jako domácnost – sazby D", "Sazbami s prefixem C (např. C01d, C02d)", "Sazbami s prefixem P", "Podnikatelé sazbu nemají"], correct: 1, explanation: "Domácnosti mají sazby D (D01d, D25d…), podnikatelé a firmy sazby C (C01d, C02d…)." },
+      { q: "Má zákazník s FVE stejný EAN pro odběr elektřiny i pro odesílání přetoků?", options: ["Ano, je to jedno a totéž EAN", "Ne – odběrné místo má spotřební EAN, výrobna má samostatný výrobní EAN", "Záleží na výkonu FVE", "EAN se u FVE nepřiděluje"], correct: 1, explanation: "Odběr a výroba jsou dvě různá místa se dvěma různými EAN. Výrobní EAN najdeme v PPP dokumentu nebo smlouvě o připojení – nikdy v dokumentu UTP." },
+      { q: "Co znamená zkratka ZD?", options: ["Změna dodavatele", "Zákaznická data", "Zúčtovací doklad", "Zápis distributora"], correct: 0, explanation: "ZD = změna dodavatele. Používá se např. při zápisu důvodu hovoru do EIS." },
+      { q: "Jaký je rozdíl mezi zákaznickým účtem MOP a MOO?", options: ["MOP a MOO je totéž", "MOP = maloodběr podnikatel, MOO = maloodběr obyvatelstvo/domácnost", "MOP je pro elektřinu, MOO pro plyn", "MOO je pro firmy, MOP pro domácnosti"], correct: 1, explanation: "MOP = maloodběr podnikatel (firmy, IČO). MOO = maloodběr obyvatelstvo (domácnosti)." },
+      { q: "Jaké ceníky na výkup elektřiny z FVE Electree aktuálně nabízí?", options: ["Pouze jeden univerzální ceník pro všechny", "Home Solar FIX (MINI/standard/MAXI) a se zapnutým chytrým řízením Solar FREE nebo Solar PLUS", "Pouze SPOT bez možnosti FIX", "Výkup vůbec nenabízíme"], correct: 1, explanation: "Bez chytrého řízení nabízíme FIX tarify dle velikosti výroby (MINI/standard/MAXI). Se zapnutým chytrým řízením (Electree Pulse) nabízíme Solar FREE (cca 4–10 MWh/rok přetoků) nebo Solar PLUS (mimo toto rozpětí)." },
+      { q: "Může mít zákazník – domácnost u plynu produkt SPOT?", options: ["Ano, Electree nabízí SPOT i pro plyn", "Ne, aktuálně nabízíme u plynu pouze fixní ceníky (HOME FIX PLYN 12/24/36)", "Pouze pokud má FVE", "Pouze firmy s IČO"], correct: 1, explanation: "U plynu Electree v současnosti nabízí jen fixní produkty HOME FIX PLYN. SPOT plyn není v nabídce." },
+    ],
+  },
+  {
     id: "produktovy-specialista",
     title: "Produktový specialista",
     desc: "Zvládnutí celého portfolia Tramaco Energy – elektřina, plyn, FVE výkup.",
@@ -140,7 +173,7 @@ function FullExam({
         <div className="bg-white border-b border-[#D1DFD8] px-8 py-4 flex items-center gap-4">
           <button onClick={onBack} className="flex items-center gap-2 text-[#0D3D34]/50 hover:text-[#0D3D34] text-sm transition-colors">
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            Zpět na certifikace
+            Zpět na testy
           </button>
           <div className="flex items-center gap-2 ml-auto">
             <span className="text-base">{cert.badge}</span>
@@ -217,7 +250,7 @@ function FullExam({
               Zkusit znovu
             </button>
             <button onClick={onBack} className="flex-1 bg-white border border-[#D1DFD8] text-[#0D3D34] py-3 rounded-xl font-bold hover:bg-[#EBF7F1] transition-colors">
-              Zpět na certifikace
+              Zpět na testy
             </button>
           </div>
         </div>
@@ -389,8 +422,8 @@ export default function CertifikacePage() {
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#0D3D34]">Certifikace</h1>
-        <p className="text-[#0D3D34]/50 text-sm mt-1">Získejte odborné certifikáty · min. 67 % pro úspěšné složení</p>
+        <h1 className="text-2xl font-bold text-[#0D3D34]">Testy</h1>
+        <p className="text-[#0D3D34]/50 text-sm mt-1">Ověř si znalosti a získej certifikát · min. 67 % pro úspěšné složení</p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">

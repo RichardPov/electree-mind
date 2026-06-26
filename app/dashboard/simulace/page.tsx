@@ -420,7 +420,7 @@ const CAT_ORDER: StepCategory[] = ["struktura", "spravnost", "namitka", "cta", "
 
 type SimState = "intro" | "sim" | "results";
 
-const TIMER_SECONDS = 12;
+const TIMER_SECONDS = 30;
 
 function playDing() {
   try {
@@ -674,48 +674,16 @@ export default function SimulacePage() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs font-bold text-[#0D3D34]/50">Krok {stepIdx + 1} / {totalSteps}</span>
-            {/* Timer */}
-            {!confirmed && (
-              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${timeLeft <= 5 ? "bg-red-100 text-red-600" : timeLeft <= 10 ? "bg-orange-100 text-orange-600" : "bg-[#EBF7F1] text-[#1A6B5A]"}`}>
-                <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" strokeLinecap="round" /></svg>
-                {timeLeft}s
-              </div>
-            )}
           </div>
         </div>
-        <div className="max-w-2xl mx-auto mt-2.5 space-y-1">
+        <div className="max-w-2xl mx-auto mt-2.5">
           <div className="h-1.5 bg-[#EBF7F1] rounded-full overflow-hidden">
             <div className="h-full bg-[#D7FF00] rounded-full transition-all duration-300" style={{ width: `${pct}%` }} />
           </div>
-          {/* Timer bar */}
-          {!confirmed && (
-            <div className="h-1 bg-[#D1DFD8] rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all duration-1000 ${timeLeft <= 5 ? "bg-red-500" : timeLeft <= 10 ? "bg-orange-400" : "bg-[#1A6B5A]"}`}
-                style={{ width: `${(timeLeft / TIMER_SECONDS) * 100}%` }} />
-            </div>
-          )}
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-6 pb-6">
-        {/* Big timer above modal */}
-        {!confirmed && (
-          <div className="mb-3">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-[#0D3D34]/40">Odpovězte do:</span>
-              <span className={`text-2xl font-black tabular-nums ${timeLeft <= 4 ? "text-red-600" : timeLeft <= 8 ? "text-orange-500" : "text-[#0D3D34]"}`}>
-                {timeLeft}s
-              </span>
-            </div>
-            <div className="h-2 bg-[#D1DFD8] rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-1000 ${timeLeft <= 4 ? "bg-red-500" : timeLeft <= 8 ? "bg-orange-400" : "bg-[#1A6B5A]"}`}
-                style={{ width: `${(timeLeft / TIMER_SECONDS) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
-
         {/* Timeout alert */}
         {timedOut && confirmed && (
           <div className="mb-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-3">
@@ -724,7 +692,8 @@ export default function SimulacePage() {
           </div>
         )}
 
-        <div className="bg-white border border-[#D1DFD8] rounded-2xl overflow-hidden">
+        <div className="flex items-start gap-3">
+        <div className="flex-1 bg-white border border-[#D1DFD8] rounded-2xl overflow-hidden min-w-0">
           <div className="px-5 py-4 bg-[#EBF7F1] border-b border-[#D1DFD8]">
             <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full text-white mr-2 ${ currentStep.category === "namitka" ? "bg-orange-500" : currentStep.category === "cta" ? "bg-[#1A6B5A]" : currentStep.category === "uzavreni" ? "bg-[#0D3D34]" : "bg-[#0D3D34]/50" }`}>
               {CAT_LABEL[currentStep.category]}
@@ -788,6 +757,17 @@ export default function SimulacePage() {
               </button>
             )}
           </div>
+        </div>
+
+        {!confirmed && (
+          <div className="w-20 flex-shrink-0 sticky top-4 bg-white border border-[#D1DFD8] rounded-2xl py-4 flex flex-col items-center justify-center">
+            <span className="text-[9px] font-bold text-[#0D3D34]/40 uppercase tracking-widest mb-1">Čas</span>
+            <span className={`text-3xl font-black tabular-nums leading-none ${timeLeft <= 5 ? "text-red-600" : timeLeft <= 10 ? "text-orange-500" : "text-[#0D3D34]"}`}>
+              {timeLeft}
+            </span>
+            <span className="text-[10px] text-[#0D3D34]/40 mt-0.5">sekund</span>
+          </div>
+        )}
         </div>
       </div>
     </div>

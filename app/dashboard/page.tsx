@@ -39,7 +39,7 @@ const CARDS = [
     href: "/dashboard/certifikace",
     from: "#0A3D2F", to: "#166B53",
     icon: CARD_ICON_SKOLENI,
-    label: "Školení & testy",
+    label: "Testy",
     desc: "Ověř si znalosti a získej certifikát",
     stat: () => "Spustit test",
     badge: "Test",

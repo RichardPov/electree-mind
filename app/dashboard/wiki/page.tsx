@@ -275,6 +275,113 @@ Pro velké FVE s vysokou výrobou – zemědělské areály, komerční budovy, 
 Pokud výroba nestačí na pokrytí paušálu → pohledávka přechází do dalšího měsíce.`,
   },
   {
+    id: "solar-free-plus",
+    title: "Solar FREE / Solar PLUS – výkup s chytrým řízením",
+    category: "Produkt",
+    tags: ["solar free", "solar plus", "FVE", "vykup", "chytre rizeni", "electree pulse", "baterie", "vzorec", "prepocet"],
+    body: `Pokud zákazník NEMÁ a NECHCE chytré řízení → nabízíme klasický Solar FIX (MINI/standard/MAXI dle MWh/rok).
+
+Pokud zákazník chytré řízení MÁ nebo si VEZME naše (Electree Pulse) → nabízíme jiný ceník dle velikosti FVE:
+• Solar FREE – roční přetoky cca 4–10 MWh
+• Solar PLUS – mimo toto rozpětí (méně i více)
+
+Vzoreček pro přibližný výpočet přetoků (MWh/rok):
+(velikost baterie v kWh × 180 − velikost FVE v kWp × 1 000) ÷ 2 = záporné číslo, jehož absolutní hodnota je odhad přetoků.
+
+Příklad: baterie 10 kWh, FVE 10 kWp → (10×180 − 10×1000) ÷ 2 = −4 100 → cca 4,1 MWh/rok → Solar FREE.
+
+Když zákazník přechází od jiného obchodníka, poprosíme o sdělení, kolik přetoků za rok reálně dodal do sítě, a podle toho propočítáme všechny ceníky (kalkulačka výpočtu přetoků).
+
+Pokud jde o 1. smlouvu na výkup, zjistíme, zda zákazník chytré řízení má. Pokud ne, nabídneme naše (Electree Pulse). Pokud o chytré řízení nemá zájem, nabídneme FIX.`,
+  },
+  {
+    id: "fve-caste-otazky",
+    title: "FVE – licence, výkon, paušál a časté problémy",
+    category: "Pojmy",
+    tags: ["FVE", "licence", "ERU", "instalovany vykon", "rezervovany vykon", "administrativni pausal", "baterie", "technicky problem", "zaporna cena", "pretok", "1.8.2025"],
+    body: `Licence: nad 100 kWp musí zákazník požádat o licenci na ERÚ. Na základě toho mu Electree pošle žádost a nachystá smlouvu.
+
+Navýšení FVE: zákazník musí nejprve zažádat na distribuci a pak nám poslat novou smlouvu o připojení.
+
+Instalovaný výkon vs. rezervovaný výkon: instalovaný výkon = velikost FVE. Rezervovaný výkon určuje distributor podle volné kapacity sítě – zákazník ho nesmí překročit, jinak je pokutován distribucí (pokuta se promítá do faktury na dodávku elektřiny).
+
+Administrativní paušál: obchodní část ceny, kterou si obchodník volí sám. Kryje odpovědnost za odchylku (platby na distribuci) a administrativu. Platí se měsíčně dle cyklu fakturace. Pokud výroba nestačí na pokrytí paušálu, pohledávka přechází do dalšího měsíce – zákazník nikdy nedostane zápornou fakturu.
+
+FVE + baterie: pro zákazníka výhodnější – přes den ukládá vyrobenou elektřinu do baterie a večer ji čerpá zpět, místo odběru ze sítě.
+
+Jak zjistí, kolik vyrobil: v aplikaci, na faktuře/přehledu výkupu, na FVE nebo na elektroměru.
+
+Technický problém FVE (oprava střechy, požár, demolice): potřebujeme doklad nebo čestné prohlášení. Lze nabídnout zrušení administrativního paušálu po dobu opravy, případně po doložení dokladů smlouvu ukončit.
+
+PŘETOK = elektřina odeslaná do sítě, kterou FVE vyrobí a zákazník v domácnosti nespotřebuje. Nulový přetok nastává, když zákazník vše ihned spotřebuje nebo má 0 rezervovaného výkonu.
+
+Záporné ceny: cena na spotu se mění každou hodinu dle situace na trhu – v přetížené síti a ve špičkách (poledne, víkend) může klesnout do záporu. Řešení: sledovat ceny na OTE / v aplikaci Electree Elis, manuálně vypnout přetoky, nainstalovat chytré řízení Electree Pulse, nebo nabídnout Fixovaný produkt.
+
+Od 1. 8. 2025 musí být všechny FVE zasmluvněné – jinak neoprávněně posílají do sítě a hrozí pokuta ze strany distribuce.`,
+  },
+  {
+    id: "sop-ukonceni-prepis-prehled",
+    title: "SOP: Ukončení a přepis odběru – přehled situací",
+    category: "SOP",
+    tags: ["SOP", "ukonceni", "prepis", "stehovani", "umrti", "dedictvi", "vypoved z bytu", "reklamace", "zpetvzeti vypovedi", "FVE"],
+    body: `Ukončení výkupu z důvodu stěhování (FVE), nový majitel jde k jinému obchodníkovi: žádost o ukončení, doklad o prodeji nemovitosti, výpis z katastru, předávací protokol. Nový vlastník MUSÍ uzavřít vlastní smlouvu na výkup – jinak hrozí pokuty. Ideálně řešit 11 dní předem.
+
+Přepis FVE na nového zákazníka (dodavatel zůstává): žádost o přepis + doklad (kupní/nájemní smlouva, potvrzení o vlastnictví). Jen změna jména, dodavatel se nemění.
+
+Úmrtí vlastníka FVE – ukončení: úmrtní list + žádost o ukončení. Dědic může pokračovat (pak je to přepis), nebo smlouvu ukončit.
+
+Úmrtí vlastníka FVE – přepis na dědice: žádost o přepis, úmrtní list, doklad o vztahu k nemovitosti.
+
+Výpověď z bytu (nájemce dostal výpověď): žádost o ukončení dohodou e-mailem + přiložená výpověď z nájmu. Ukončení bez pokut.
+
+Ukončení dohodou (odstěhování, vyhoření, prodej domu/bytu): žádost o ukončení + doložení důvodu (čestné prohlášení, kupní smlouva atd.). Bez sankcí.
+
+Přepis se změnou dodavatele (z původního na nás): žádost o přepis, nájemní/kupní smlouva, poslední faktura, výpis z katastru (+ úmrtní list při úmrtí), kdo byl původní obchodník a do kdy, PM původního zákazníka.
+
+Přepis bez změny dodavatele (stěhování, dodavatel zůstává): žádost o přepis, čestné prohlášení, smlouva (nájemní/kupní), stavy elektroměrů, PM původního zákazníka.
+
+Úmrtí odběratele elektřiny/plynu: úmrtní list, čestné prohlášení, stavy měřidel – nutné nahlásit, aby nevznikl neoprávněný odběr.
+
+Zpětvzetí výpovědi: zákazník má již ukončenou smlouvu a rozhodl se zůstat. Potřeba formulář zpětvzetí výpovědi + PM. Vždy se zeptat, zda už nepodepsal smlouvu jinde.
+
+Reklamace (odečet na faktuře): formulář reklamace + fotky měřidla. Podává se na DSO (distributora).`,
+  },
+  {
+    id: "zkratky-prehled",
+    title: "Zkratky – rychlý přehled",
+    category: "Pojmy",
+    tags: ["zkratky", "EDC", "ERU", "OM", "PM", "UL", "ZK", "ZS", "ZD", "DR", "RZ", "CP", "RS", "MOO", "MOP", "SoP", "VOP", "EP", "OTE", "HDO", "LDS", "DSO", "DIP", "DPI", "FVE", "POZE", "PPP", "NMT", "NN", "VN"],
+    body: `EDC – energetické datové centrum
+ERÚ – energetický regulační úřad
+OM – odběrné místo
+PM – plná moc
+ÚL – úmrtní list
+ZK – zákazník
+ZS – změna sazby
+ZD – změna dodavatele
+DŘ – dědické řízení
+RZ – revizní zpráva
+ČP – čestné prohlášení
+RS – rámcová smlouva
+MOO – maloodběr obyvatelstvo/domácnost
+MOP – maloodběr podnikatel
+SoP – smlouva o připojení
+VOP – veřejné obchodní podmínky
+EP – Electree Pulse (chytré řízení)
+OTE – operátor trhu s energiemi
+HDO – přepínač vysokého a nízkého tarifu
+LDS – lokální distributor
+DSO – distributor
+DIP – distribuční portál
+DPI – dodavatel poslední instance
+FVE – fotovoltaika
+POZE – podporované zdroje energie
+PPP – první paralelní připojení
+NN – nízké napětí
+VN – vysoké napětí
+NMT – nejbližší možný termín`,
+  },
+  {
     id: "dist-sazby-d",
     title: "Distribuční sazby D – domácnosti",
     category: "Distribuce",

@@ -51,7 +51,7 @@ export default function NastaveniPage() {
         <div className="bg-[#EBF7F1] border border-[#B8E8D0] rounded-2xl p-4">
           <div className="text-xs font-bold text-[#1A6B5A] uppercase tracking-widest mb-3">👤 Operátor vidí</div>
           <ul className="space-y-1.5 text-xs text-[#0D3D34]/70">
-            {["Wiki & SOPs", "Akademie", "Simulace hovorů", "Školení", "Zlaté hovory", "Kalkulačka", "Konkurence", "Flashkarty"].map(item => (
+            {["Wiki & SOPs", "Akademie", "Simulace hovorů", "Testy", "Zlaté hovory", "Kalkulačka", "Konkurence", "Flashkarty"].map(item => (
               <li key={item} className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#1A6B5A] flex-shrink-0" />{item}
               </li>
